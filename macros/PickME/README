@@ -1,0 +1,6 @@
+pick me
+./pickME.bin inputfilelist outputfilename $Cen
+Cen=1(central) 2(peripheral)
+
+main macro pickME.C
+submit     phuo_twist.sh 

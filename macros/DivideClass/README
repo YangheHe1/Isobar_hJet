@@ -1,0 +1,7 @@
+Divide classes
+./analysis input_filelist output_filename $Cen $psi
+Cen=0(all events) 1(central) 2(peripheral)
+psi=0(no EP) 1(EPD) 2(TPC)
+
+main macro DivideClass.C
+submit     phuo_twist.sh 

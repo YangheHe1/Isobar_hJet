@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="3" filesPerHour="20" fileListSyntax="xrootd">
+    <command>
+
+#stardev
+
+
+root.exe runHFullJet.C\(-1,\"$FILELIST\",\"$JOBID\",\"badrun.list\",\"runnumber.list\"\) -q
+
+
+
+
+</command>
+
+
+     <ResourceUsage>
+	<Priority>99</Priority>
+     </ResourceUsage>
+
+ <SandBox installer="ZIP">	
+	<Package name="mydemox">
+	<File>file:./runHFullJet.C</File>
+	<File>file:./StRoot</File>
+	<File>file:./.sl73_gcc485</File>
+        <File>file:./badrun.list</File>
+	<File>file:./runnumber.list</File>
+	<File>file:./file_Oct9.list</File>
+	</Package>
+</SandBox>
+
+    <stderr URL="file:/star/u/yanghe/scratch/Isobar_Tree/log/$JOBID.err" />
+    <stdout URL="file:/star/u/yanghe/scratch/Isobar_Tree/log/$JOBID.out" />
+
+    <input URL="filelist:/star/u/yanghe/Isobar_200_jet/BuildTree/file_Oct9.list" />
+
+    <output fromScratch="*.root" toURL="/star/u/yanghe/scratch/Isobar_Tree/" />
+    <output fromScratch="*.list" toURL="/star/u/yanghe/scratch/Isobar_Tree/log/" />
+
+<Generator>
+<Location>/star/u/yanghe/scratch/Isobar_Tree/log</Location>
+</Generator>
+</job>

@@ -1,0 +1,1 @@
+root -b 'runHFullJet.C(-1,"file.list","test","bad_run.list","run_number.list")' 
