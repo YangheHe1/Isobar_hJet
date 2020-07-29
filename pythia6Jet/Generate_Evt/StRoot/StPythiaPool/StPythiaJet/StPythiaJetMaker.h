@@ -1,0 +1,75 @@
+#ifndef STPYTHIAJETMAKER
+#define STPYTHIAJETMAKER
+
+#include <vector>
+#include <iostream>
+
+#include "TTree.h"
+#include "TFile.h"
+#include "TPythia6.h"
+//#include "TVector3.h"
+#include "StJetFinder/StJetFinder.h"
+#include "StJetFinder/StFastJetPars.h"
+#include "StJetFinder/StProtoJetCut.h"
+#include "StPythiaJetEvent.h"
+#include "StPythiaJetStatusCut.h"
+
+using std::vector;
+using std::cout;
+using std::endl;
+
+class StPythiaJet;
+
+class StPythiaJetMaker{
+ public:
+  StPythiaJetMaker(){
+    file = "jets.root";
+    //jet = new StPythiaJetEvent(new TVector3(0, 0, 0));
+  }
+  StPythiaJetMaker(StPythiaJet *pjet){ jets.push_back(pjet);}
+  void SetFile(const char* fname = "jets.root"){ file = fname; }
+  
+  int Init();
+  void Add(StPythiaJet *pjet) {jets.push_back(pjet);}
+  int Make(int eventid, TPythia6 *pythia);
+  void Fill(StPythiaJetEvent *jetevent, const StProtoJet *protojet);
+  int Finish();
+ private:
+  const char *file;
+  TFile *fin;
+  TTree *tree;
+  vector<StPythiaJet*> jets;
+};
+
+class StPythiaJet{
+ public:
+  StPythiaJet(){ 
+    _jetfinder = _jetpars->constructJetFinder(); 
+  }
+  StPythiaJet(StFastJetPars *pars, const char*br = "algo"){
+    _jetpars = pars;
+    _branch = br;
+    _jetfinder = _jetpars->constructJetFinder();
+    _jet = new StPythiaJetEvent;
+    _statuscut = 0;
+  }
+  const char* branch() const { return _branch;}
+  StJetFinder* jetfinder() const { return _jetfinder;}
+  StPythiaJetEvent* jet() const { return _jet;}
+  StFastJetPars* jetpars() const { return _jetpars;}
+
+  vector<StProtoJetCut*> jetcut() const { return _jetcut;}
+  void addcut(StProtoJetCut *cut) { _jetcut.push_back(cut);}
+
+  StPythiaJetStatusCut *statuscut() { return _statuscut;}
+  void setstatuscut(StPythiaJetStatusCut *sc) { _statuscut = sc;}
+  void clear() { _jet->clear(); }
+ private:
+  StFastJetPars *_jetpars;
+  StJetFinder *_jetfinder;
+  const char *_branch;
+  vector<StProtoJetCut*> _jetcut;
+  StPythiaJetEvent *_jet;
+  StPythiaJetStatusCut *_statuscut;
+};
+#endif

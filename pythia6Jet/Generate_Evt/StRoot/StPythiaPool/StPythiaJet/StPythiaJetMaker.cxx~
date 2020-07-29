@@ -1,0 +1,119 @@
+#include "StPythiaJetMaker.h"
+#include "StJetVector.h"
+int StPythiaJetMaker::Init()
+{
+  fin = new TFile(file, "recreate");
+  tree = new TTree("jet", "jetTree");
+  for(size_t i = 0; i < jets.size(); i++){
+    tree->Branch(jets[i]->branch(), "StPythiaJetEvent", jets[i]->jet());
+  }
+  return 1;
+}
+
+int StPythiaJetMaker::Make(int eventid, TPythia6 *pythia)
+{
+  for(size_t i = 0; i < jets.size(); i++){ 
+    //set event id
+    jets[i]->jet()->setid(eventid);
+    //fill input particles to jet finder
+    StProtoJet::FourVecList parjets;
+    for (int ip = 0; ip < pythia->GetN(); ip++){
+      bool pass = 0;
+      StPythiaJetStatusCut *sc = jets[i]->statuscut();
+      if(sc) pass = (*sc)(pythia, ip);
+      if(pass) continue;
+      int index = ip+1;
+      StJetVector *vect = new StJetVector(pythia->GetK(index, 2),
+					  pythia->GetK(index, 1),
+					  pythia->GetK(index, 3),
+					  pythia->GetK(index, 4),
+					  pythia->GetK(index, 5),
+					  pythia->GetP(index, 1),
+					  pythia->GetP(index, 2),
+					  pythia->GetP(index, 3),
+					  pythia->GetP(index, 4),
+					  pythia->GetV(index, 1),
+					  pythia->GetV(index, 2),
+					  pythia->GetV(index, 3),
+					  pythia->GetV(index, 4));
+      
+      parjets.push_back(vect);
+    }
+
+    //jets found in jet finder
+    StJetFinder::JetList protojets;
+    cout<<"BEFORE proto size:"<<parjets.size()<<" jet size:"<<protojets.size()<<endl;
+    cout<<"BRANCH "<<i<<" radius:"<<jets[i]->jetpars()->Rparam()<<endl;
+    jets[i]->jetfinder()->findJets(protojets, parjets);
+    cout<<"AFTER proto size:"<<parjets.size()<<" jet size:"<<protojets.size()<<endl;
+    for(StJetFinder::JetList::const_iterator ijet = protojets.begin(); ijet != protojets.end(); ijet++){
+      bool flag = 0;
+      for(size_t icut = 0; icut < jets[i]->jetcut().size(); icut++){
+	if((*(jets[i]->jetcut())[icut])(*ijet)) flag = 1;
+      }
+      if(flag) continue;
+      //      jets[i]->jet()->fill(&(*ijet));
+      Fill(jets[i]->jet(), &(*ijet));
+      cout<<"jet pt="<<(*ijet).pt()<<" found"<<endl;
+    }
+  }
+  
+  //  StPythiaJetCandidate *jc = (StPythiaJetCandidate *)(jet->getJets()->At(0));
+  //  cout<<"jet pt="<<((StPythiaJetCandidate *)(jet->getJets()->At(0)))->pt()<<endl;
+  //  cout<<"par px="<<((StPythiaJetParticle *)jc->getParticles()->At(0))->px()<<endl;
+  tree->Fill();
+
+  for(size_t i = 0; i < jets.size(); i++){
+    jets[i]->jet()->clear();
+  }
+
+  return 1;
+}
+void StPythiaJetMaker::Fill(StPythiaJetEvent *jetevent, StProtoJet *protojet)
+{
+  TClonesArray *jets = jetevent->atJets();
+  //  TClonesArray &array = *jets;
+  int index = jets->GetEntriesFast();
+  StPythiaJetCandidate *jetcnd = (StPythiaJetCandidate*)jets->ConstructedAt(index);
+  //new(array[(int)jets->GetEntriesFast()]) StPythiaJetCandidate;
+  
+  _pt = protojet->pt();
+  _px = protojet->px();
+  _py = protojet->py();
+  _pz = protojet->pz();
+
+  _eta = -999.;
+  if(protojet->pt() > 0.) _eta = protojet->eta();
+  else if(protojet->pz() > 0.) _eta = 999.;
+   
+  _phi = protojet->phi();
+
+  _e = protojet->e();
+  _eT = protojet->eT();
+  _mass = protojet->mass();
+  _charge = protojet->charge();
+
+  particles = new TClonesArray("StPythiaJetParticle", 50);
+  TClonesArray &array = *particles;
+  //  for (StProtoJet::FourVecList::const_iterator ipar = protojet->list().begin(); ipar != protojet->list().end(); ipar++){
+  //    array->Add(new StPythiaJetParticle((StJetVector *)*ipar));
+  //  }
+  for(size_t ii = 0; ii < protojet->list().size(); ii++){
+    StJetVector* vec = (StJetVector*)(protojet->list()[ii]);
+    //    cout<<"px="<<vec->px()<<endl;
+    //    StPythiaJetParticle *p = new StPythiaJetParticle(vec);
+    //    array->At(ii) = p;
+    new(array[ii]) StPythiaJetParticle(vec);
+    //    cout<<"ientry:"<<array.GetEntriesFast()<<endl;  
+  }
+  //  cout<<"entry:"<<particles->GetEntries()<<endl;  
+  //  cout<<"entry:"<<array.GetEntries()<<endl;  
+
+}
+int StPythiaJetMaker::Finish()
+{
+  fin->Write();
+  fin->Close();
+
+  return 1;
+}

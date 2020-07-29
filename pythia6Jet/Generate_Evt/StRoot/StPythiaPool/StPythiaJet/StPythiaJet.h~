@@ -1,0 +1,32 @@
+#ifndef STPYTHIAJET
+#define STPYTHIAJET
+
+#include "TTree.h"
+#include "TFile.h"
+#include "TClonesArray.h"
+#include "StJetFinder/StJetFinder.h"
+#include "StJetFinder/StFastJetPars.h"
+#include "StPythiaJetEvent.h"
+
+class StPythiaJet{
+ public:
+  StPythiaJet(){ jetfinder = jetpars->constructJetFinder(); 
+//jet = new StPythiaJetEvent(new TVector3(0, 0, 0));
+  }
+  StPythiaJet(StFastJetPars *pars, const char*br = "algo"){ jetpars = pars; branch = br; jetfinder = jetpars->constructJetFinder(); jet = new StPythiaJetEvent(new TVector3(0, 0, 0));}
+  void SetFile(const char* fname = "jets.root"){ file = fname; }
+  
+  int Init();
+  int Make(TClonesArray *particles);
+  int Finish();
+  void Clear() { jet->Clear(); }
+ private:
+  StFastJetPars *jetpars;
+  StJetFinder *jetfinder;
+  const char *file;
+  const char *branch;
+  TFile *fin;
+  TTree *tree;
+  StPythiaJetEvent *jet;
+};
+#endif

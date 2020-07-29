@@ -1,0 +1,35 @@
+#include "StJetFinder/StProtoJet.h"
+
+class StPythiaJetCandidate{
+ public:
+  StPythiaJetCandidate(){}
+  StPythiaJetCandidate(StProtoJet protojet);
+  ~StPythiaJetCandidate(){}
+  double pt() const{ return _pt;};
+  double px() const{ return _px;};
+  double py() const{ return _py;};
+  double pz() const{ return _pz;};
+  double phi() const{ return _phi;}
+  double eta() const{ return _eta;}
+
+  double e() const { return _e;}
+  double eT() const { return _eT;}
+  double mass() const { return _mass;}
+  double charge() const { return _charge;}
+
+  void fill(StProtoJet protojet);
+ private:
+  double _pt;
+  double _px;
+  double _py;
+  double _pz;
+  double _eta;
+  double _phi;
+
+  double _e;
+  double _eT;
+  double _mass;
+  double _charge;
+
+  TClonesArray *particles;
+}

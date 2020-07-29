@@ -1,0 +1,10 @@
+Universe        = vanilla
+Notification    = Error
+Rank            = CPU_Speed
+GetEnv          = True
+Input           = /dev/null
+Notify_user     = nxhy1996@126.com
++Experiment     = "star"
++Job_Type       = "cas"
+Priority        = +20
+Requirements    = (CPU_Speed >= 1 && TotalDisk > 0)

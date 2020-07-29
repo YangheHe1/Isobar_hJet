@@ -1,0 +1,154 @@
+#include<iostream>
+using namespace std;
+
+#include "utilPythia.h"
+
+#include "TVector3.h"
+#include "TParticle.h"
+
+#include "StPythiaPool/StPythiaJet/StPythiaJetEvent.h"
+#include "StPythiaPool/StPythiaJet/StPythiaJetCandidate.h"
+#include "StPythiaPool/StPythiaJet/StPythiaJetParticle.h"
+
+bool chargedHadron(const StPythiaJetParticle *par)
+{
+  int pdg = par->pdg();
+  
+  if(
+     pdg == 2212 || pdg == -2212 // proton+/proton-
+     || pdg == 211 || pdg == -211 //pion+/pion-
+     || pdg == 321 ||pdg == -321 //kaon+/kaon-
+     ) return true;
+  return false;
+}
+double parFrag(const StPythiaJetParticle *par, const TVector3 &vec)
+{
+  TVector3 mom(par->px(), par->py(), par->pz());
+  return mom.Mag()/vec.Mag();
+}
+TVector3 parLocalMomentum(const StPythiaJetParticle *par, const TVector3 &vec)
+{
+  TVector3 mom(par->px(), par->py(), par->pz());
+  TVector3 longUnit = vec.Unit();
+  TVector3 normUnit = TVector3(0,0,1).Cross(longUnit).Unit();
+  TVector3 sideUnit = longUnit.Cross(normUnit);
+  return TVector3(mom.Dot(sideUnit), mom.Dot(normUnit), mom.Dot(longUnit));
+}
+//TParticle
+bool chargedHadron(const TParticle *par)
+{
+  int pdg = par->GetPdgCode();
+  
+  if(
+     pdg == 2212 || pdg == -2212 // proton+/proton-
+     || pdg == 211 || pdg == -211 //pion+/pion-
+     || pdg == 321 ||pdg == -321 //kaon+/kaon-
+     ) return true;
+  return false;
+}
+double parFrag(const TParticle *par, const TVector3 &vec)
+{
+  TVector3 mom(par->Px(), par->Py(), par->Pz());
+  return mom.Mag()/vec.Mag();
+}
+TVector3 parLocalMomentum(const TParticle *par, const TVector3 &vec)
+{
+  TVector3 mom(par->Px(), par->Py(), par->Pz());
+  TVector3 longUnit = vec.Unit();
+  TVector3 normUnit = TVector3(0,0,1).Cross(longUnit).Unit();
+  TVector3 sideUnit = longUnit.Cross(normUnit);
+  return TVector3(mom.Dot(sideUnit), mom.Dot(normUnit), mom.Dot(longUnit));
+}
+void PrintR(StPythiaJetCandidate* jet, StPythiaJetEvent *evntpar)
+{
+//  double DeltaR(double etaA, float phiA, float etaB, float phiB);
+
+  double pt = jet->pt();
+  double eta = jet->eta();
+
+  double phi = jet->phi();
+  int NJets = evntpar->getJets()->GetEntriesFast();
+
+  cout<<"particle jet: pt="<<pt<<" eta="<<eta<<" phi="<<phi<<" N_par="<<NJets<<endl;
+  for(int ijet = 0; ijet < NJets; ijet++){
+    StPythiaJetCandidate *jetpar = (StPythiaJetCandidate *)evntpar->getJets()->At(ijet);
+
+    double ptpar = jetpar->pt();
+    double etapar = jetpar->eta();
+    double phipar = jetpar->phi();
+
+    double dRpar = DeltaR(eta, phi, etapar, phipar);
+    cout<<ijet<<" pt_par="<<ptpar<<" eta_par="<<etapar<<" phi_par="<<phipar<<" dR="<<dRpar<<endl;
+  }
+
+}
+
+double FindRmin(StPythiaJetCandidate* jet, StPythiaJetEvent *evntpar)
+{
+//  double DeltaR(double etaA, float phiA, float etaB, float phiB);
+
+  double eta = jet->eta();
+  double phi = jet->phi();
+  int NJets = evntpar->getJets()->GetEntriesFast();
+
+  double dR = 99.0;
+  //int index = -1;
+  for(int ijet = 0; ijet < NJets; ijet++){
+    StPythiaJetCandidate *jetpar = (StPythiaJetCandidate *)evntpar->getJets()->At(ijet);
+    double etapar = jetpar->eta();
+    double phipar = jetpar->phi();
+//  cout<<"eta_par="<<etapar<<" eta_phi="<<phipar<<" eta="<<eta<<" phi="<<phi<<endl;
+    double dRpar = DeltaR(eta, phi, etapar, phipar);
+
+    if(dR > dRpar){
+      dR = dRpar;
+      //index = ijet;
+    }
+//    cout<<ijet<<" "<<dRpar<<" min: "<<dR<<" of "<<index<<"\n";
+  }
+  return dR;
+}
+
+StPythiaJetCandidate *FindParJet(StPythiaJetCandidate* jet, StPythiaJetEvent *evntpar, double range)
+{
+//  double DeltaR(double etaA, float phiA, float etaB, float phiB);
+
+  double eta = jet->eta();
+  double phi = jet->phi();
+  int NJets = evntpar->getJets()->GetEntriesFast();
+
+  double dR = 99.0;
+  int index = -1;
+  for(int ijet = 0; ijet < NJets; ijet++){
+    StPythiaJetCandidate *jetpar = (StPythiaJetCandidate *)evntpar->getJets()->At(ijet);
+    double etapar = jetpar->eta();
+    double phipar = jetpar->phi();
+    if(TMath::Abs(etapar) > range) continue;
+    double dRpar = DeltaR(eta, phi, etapar, phipar);
+
+    if(dR > dRpar){
+      dR = dRpar;
+      index = ijet;
+    }
+//    cout<<ijet<<" "<<dRpar<<" min: "<<dR<<" of "<<index<<"\n";
+  }
+  
+  if(dR < 0.5) return (StPythiaJetCandidate *)evntpar->getJets()->At(index);
+  else return NULL;
+}
+
+double DeltaR(double etaA, float phiA, float etaB, float phiB)
+{
+  const double PI = 3.1416;
+  
+  double deta = etaA - etaB;
+  double dphi = phiA - phiB;
+
+  if(dphi > PI) dphi -= 2.*PI;
+  if(dphi < -1.*PI) dphi += 2.*PI;
+
+  double dR = TMath::Sqrt(deta*deta+dphi*dphi);
+//  cout<<etaA<<" "<<phiA<<" "<<etaB<<" "<<phiB<<" "<<dR<<"\n";
+
+  return dR;
+}

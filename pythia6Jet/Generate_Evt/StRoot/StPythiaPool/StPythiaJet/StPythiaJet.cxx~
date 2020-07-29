@@ -1,0 +1,53 @@
+#include <vector>
+#include "StPythiaJet.h"
+#include "StPythiaJetCandidate.h"
+#include "StPythiaJetParticle.h"
+#include "StJetVector.h"
+#include <iostream>
+using std::cout;
+using std::endl;
+using std::vector;
+int StPythiaJet::Init()
+{
+  fin = new TFile(file, "recreate");
+  tree = new TTree("jets", "jetTree");
+  //  jet = new StPythiaJetEvent();
+  tree->Branch(branch, "StPythiaJetEvent", &jet);
+
+//  jetfinder->Init();
+ 
+  return 1;
+}
+int StPythiaJet::Make(TClonesArray *particles)
+{
+  StJetFinder::JetList protojets;
+  StProtoJet::FourVecList parjets;
+  for (int i = 0; i < particles->GetEntriesFast(); i++){
+    TParticle *ipart = (TParticle *)particles->At(i);
+    StJetVector *vect = new StJetVector(ipart);
+    parjets.push_back(vect);
+  }
+  jetfinder->findJets(protojets, parjets);
+  //  if(jetfinder) jetpars->constructJetFinder()->findJets(protojets, jets);
+  //  jet.fill(protojets);
+  for(StJetFinder::JetList::const_iterator ijet = protojets.begin(); ijet != protojets.end(); ijet++){
+    jet->fill(&(*ijet));
+    cout<<"pt="<<(*ijet).pt()<<endl;
+  }
+  
+  StPythiaJetCandidate *jc = (StPythiaJetCandidate *)(jet->getJets()->At(0));
+  cout<<"jet pt="<<((StPythiaJetCandidate *)(jet->getJets()->At(0)))->pt()<<endl;
+  if(jc)  cout<<"par px="<<((StPythiaJetParticle *)jc->getParticles()->At(0))->px()<<endl;
+  tree->Fill();
+
+  jet->Clear();
+
+  return 1;
+}
+int StPythiaJet::Finish()
+{
+  fin->Write();
+  fin->Close();
+
+  return 1;
+}

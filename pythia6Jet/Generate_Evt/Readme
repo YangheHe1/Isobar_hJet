@@ -1,0 +1,51 @@
+This is to generated PYTHIA6 with STAR tune
+
+/star/data01/pwg/nihar/Pythia6_Htrieg
+
+- this setup only run on rcas
+
+- copy whole directory (/star/data01/pwg/nihar/Pythia6_Htrieg) to your place
+
+There are following files and directories
+
+1)  StRoot/ : you don't need to change anything
+
+2) dijet_rootfiles/ : directory where all the generated Pythia6 root files will be generared 
+
+3) RunPythia_QCDjetsProcess.C  : this is the main runing macro that calls all  Pythia6  functions and generates  events
+                  - all the arguments can be found there
+
+4) Execute.sh         :  This shell script runs "RunPythia_QCDjetsProcess.C"
+                         command line to run:  
+                            $ ./Execute.sh (number)
+
+5) submitJob_gamma.sh : This shell script runs "Execute.sh" which is for many root files from job=by-job auto submission. It can generat at a time 10 root files
+                        command line to run:
+      			    $ ./submitJob_gamma.sh
+
+How to RUN this __________________
+
+step 1)  after coping to your area
+step 2) change your directory path in "RunPythia_QCDjetsProcess.C" at line number#10
+
+step 3) make "cons"
+
+step 4) once your directory path is set and "cons" successfull; following 
+
+$ nohup ./submitJob_gamma.sh >& see.log &
+
+Note: Each time you submit (step-4) you need to change "val" in submitJob_gamma.sh, otherwise root files will be overwritten 
+
+
+
+
+
+
+
+
+
+
+______________________
+
+dijet_rootfiles/  Execute.sh~*  RunPythia_QCDjetsProcess.C~  submitJob_gamma_2.sh*  submitJob_gamma.sh~*
+Execute.sh*       Readme        RunPythia_QCDjetsProcess.C  StRoot/                      submitJob_gamma.sh*    temp_gccflags.c

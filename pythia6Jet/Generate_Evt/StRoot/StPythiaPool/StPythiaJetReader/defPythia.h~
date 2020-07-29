@@ -1,0 +1,13 @@
+#ifndef DEF_PYTHIA
+#define DEF_PYTHIA
+
+const int Npar = 2;
+const char *par[Npar] = {"Parton", "Particle"};
+const int Ncone = 3;
+const char *cone[Ncone] = {"minus", "plus", "sum"};
+
+const int Nproc = 3;
+const char *proc[Nproc] = {"gg", "qg", "qq"};
+
+
+#endif
