@@ -9,6 +9,11 @@ mkdir log1
 
 N0=425
 
+A_cut_R2=0.05
+A_cut_R3=0.2
+A_cut_R4=0.35
+
+
 for((I1=0;I1<N0;I1+=1))
 do
     I2=`expr  $I1 +  1`
@@ -25,7 +30,7 @@ do
 
     echo "#!/bin/sh    ">$Filenm02
     echo 'echo $0'>>$Filenm02
-    echo "sh run.sh $I1 $I2 >log1/job_$I1.log">>$Filenm02
+    echo "sh run.sh $I1 $I2 $A_cut_R2 >log1/job_$I1.log">>$Filenm02
     echo "rm $Filenm01">>$Filenm02
     echo "rm $Filenm02">>$Filenm02
 

@@ -42,12 +42,14 @@ static const double value_pi = 3.14;
 
 class readjet {
 public :
-   readjet(string filelist, int fr, int tr);
+   readjet(string filelist, int fr, int tr, double area_cut);
    void InitHist();
    void JetLoop();
 
    int from;
    int to;
+   double AreaCut;
+   
    char name[200];
    TFile *fout;
    TH1D *CjetPt[2];
@@ -58,6 +60,12 @@ public :
    TH1D *Hrho[2];
    TH2D *Hrho_vs_M[2];
    TH1D *Harea;
+   TH1D *Harea7_30;
+   TH1D *Harea9_30;
+   TH1D *Harea7_30_Pt5;
+   TH1D *Harea9_30_Pt5;
+   TH1D *HTrg7_30;
+   TH1D *HTrg9_30;
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain

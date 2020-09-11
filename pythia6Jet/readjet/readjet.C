@@ -4,7 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-readjet::readjet(string filelist, int fr, int tr):from(fr),to(tr){
+readjet::readjet(string filelist, int fr, int tr, double area_cut):from(fr),to(tr),AreaCut(area_cut){
 
     TChain* chain  = new TChain("JetTree","");
 
@@ -63,6 +63,14 @@ Hrho_vs_M[icent] = new TH2D(name,"",820,0,820,100,0,50);
 }
 Harea = new TH1D("Harea","Harea",20,0,0.5);
 
+Harea7_30 = new TH1D("Harea7_30","Harea trg7-30",100,0,1);
+Harea7_30_Pt5 = new TH1D("Harea7_30_Pt5","Harea trg7-30 jet pt>5",100,0,1);
+Harea9_30 = new TH1D("Harea9_30","Harea trg9-30",100,0,1);
+Harea9_30_Pt5 = new TH1D("Harea9_30_Pt5","Harea trg9-30 jet pt>5",100,0,1);
+
+HTrg7_30 = new TH1D ("Htrg7_30","Htrg7_30",2,0,2);
+HTrg9_30 = new TH1D ("Htrg9_30","Htrg9_30",2,0,2);
+
 }
 
 void readjet::JetLoop(){
@@ -81,17 +89,21 @@ void readjet::JetLoop(){
       else {trig_jet_deltaPhi= deltaPhi;}
 
       if (trig_jet_deltaPhi < value_pi-(value_pi/4.0)  || trig_jet_deltaPhi > value_pi+(value_pi/4.0) ) continue;
-
+      if(iJetArea<AreaCut) continue;
 
       double iJetPtC = iJetPt-(iJetArea*Rho);
 
       Harea->Fill(iJetArea);
       if(TrgEt>=7&&TrgEt<=30){
          CjetPt[0]->Fill(iJetPtC);
+         Harea7_30->Fill(iJetArea);
+         if(iJetPtC>5) Harea7_30_Pt5->Fill(iJetArea);
       }
 
       if(TrgEt>=9&&TrgEt<=30){
          CjetPt_9_30[0]->Fill(iJetPtC);
+         Harea9_30->Fill(iJetArea);
+         if(iJetPtC>5) Harea9_30_Pt5->Fill(iJetArea);
       }
 
 
@@ -140,6 +152,10 @@ void readjet::Loop()
       triggerPt[0]->Fill(TrgEt);
       Hrho[0]->Fill(Rho);
       Hrho_vs_M[0]->Fill(PrimTrk,Rho);
+      
+      if(TrgEt>=7&&TrgEt<=30) HTrg7_30->Fill(1);
+      if(TrgEt>=9&&TrgEt<=30) HTrg9_30->Fill(1);
+
       JetLoop();
    }
 
