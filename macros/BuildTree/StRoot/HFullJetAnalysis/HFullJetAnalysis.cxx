@@ -93,41 +93,49 @@ Int_t HFullJetAnalysis::Init() {
 
 	outTree = new TTree("EventTree","EventTree");
 
-  	outTree->Branch("refmult",&refmult,"refmult/D");
-  	outTree->Branch("Vz",&Vz,"Vz/D");
-	outTree->Branch("Vx",&Vx,"Vx/D");
-	outTree->Branch("Vy",&Vy,"Vy/D");
-	outTree->Branch("Vz_VPD",&Vz_VPD,"Vz_VPD/D");
-	outTree->Branch("zdc",&zdc,"zdc/D");
-	outTree->Branch("bbc",&bbc,"bbc/D");
+	outTree->Branch("RunId",&RunId,"RunId/I");
+	outTree->Branch("EventId",&EventId,"EventId/I");
+  	outTree->Branch("refmult",&refmult,"refmult/S");
+  	outTree->Branch("Vz",&Vz,"Vz/F");
+	outTree->Branch("Vx",&Vx,"Vx/F");
+	outTree->Branch("Vy",&Vy,"Vy/F");
+	outTree->Branch("Vz_VPD",&Vz_VPD,"Vz_VPD/F");
+	outTree->Branch("zdc",&zdc,"zdc/F");
+	outTree->Branch("bbc",&bbc,"bbc/F");
 	//outTree->Branch("NCharge",&NCharge,"NCharge/D");
-	outTree->Branch("NBTOFMultfit",&NBTOFMultfit,"NBTOFMultfit/D");
+	outTree->Branch("NBTOFMultfit",&NBTOFMultfit,"NBTOFMultfit/F");
 	
 	//TPC
 	outTree->Branch("numTrk",&numTrk,"numTrk/I");
 
 	
-	outTree->Branch("Pt",&Pt,"Pt[numTrk]/D");
-	outTree->Branch("Eta",&Eta,"Eta[numTrk]/D");
-	outTree->Branch("Phi",&Phi,"Phi[numTrk]/D");
-	outTree->Branch("Charge",&Charge,"Charge[numTrk]/D");
-	outTree->Branch("Dca",&Dca,"Dca[numTrk]/D");
+	outTree->Branch("Pt",&Pt,"Pt[numTrk]/F");
+	//outTree->Branch("Px",&Px,"Px[numTrk]/D");
+	//outTree->Branch("Py",&Py,"Py[numTrk]/D");
+	outTree->Branch("Pz",&Pt,"Pz[numTrk]/F");
+	outTree->Branch("Eta",&Eta,"Eta[numTrk]/F");
+	outTree->Branch("Phi",&Phi,"Phi[numTrk]/F");
+	//outTree->Branch("Charge",&Charge,"Charge[numTrk]/F");
+	outTree->Branch("Dca",&Dca,"Dca[numTrk]/F");
+	outTree->Branch("nHits",&nHits,"nHits[numTrk]/F");
 
 	//EPD
 	//outTree->Branch("EPDmaxHit",&EPDmaxHit, "EPDmaxHit/I");
-    outTree->Branch("NumEPDHit",&NumEPDHit, "NumEPDHit/I");
+    outTree->Branch("NumEPDHit",&NumEPDHit, "NumEPDHit/S");
     
-    outTree->Branch("NumMip", NumMip, "NumMip[NumEPDHit]/D");
-    outTree->Branch("TileID", TileID, "TileID[NumEPDHit]/I");
+    outTree->Branch("NumMip", NumMip, "NumMip[NumEPDHit]/F");
+    //outTree->Branch("TileID", TileID, "TileID[NumEPDHit]/I");
     
-    outTree->Branch("EPDX", EPDX, "EPDX[NumEPDHit]/D");
-    outTree->Branch("EPDY", EPDY, "EPDY[NumEPDHit]/D");
-    outTree->Branch("EPDZ", EPDZ, "EPDZ[NumEPDHit]/D");
-	outTree->Branch("EPD_eta", EPD_eta, "EPD_eta[NumEPDHit]/D");
-	outTree->Branch("EPD_phi", EPD_phi, "EPD_phi[NumEPDHit]/D");
-	outTree->Branch("EPD_PP", EPD_PP, "EPD_PP[NumEPDHit]/D");
-	outTree->Branch("EPD_TT", EPD_TT, "EPD_TT[NumEPDHit]/D");
+    outTree->Branch("EPDX", EPDX, "EPDX[NumEPDHit]/F");
+    outTree->Branch("EPDY", EPDY, "EPDY[NumEPDHit]/F");
+    outTree->Branch("EPDZ", EPDZ, "EPDZ[NumEPDHit]/F");
+	//outTree->Branch("EPD_eta", EPD_eta, "EPD_eta[NumEPDHit]/D");
+	//outTree->Branch("EPD_phi", EPD_phi, "EPD_phi[NumEPDHit]/D");
+	outTree->Branch("EPD_PP", EPD_PP, "EPD_PP[NumEPDHit]/F");
+	outTree->Branch("EPD_TT", EPD_TT, "EPD_TT[NumEPDHit]/F");
 
+	//BBC
+	outTree->Branch("mBbcQ", mBbcQ, "mBbcQ[48]/I");
   	
 	//Event plane
 	//outTree->Branch("EPD_Psi",&EPD_Psi, "EPD_Psi/D");
@@ -179,6 +187,7 @@ Int_t HFullJetAnalysis::Make() {
                 float refMultCorr = mRefMultCorr->getRefMultCorr() ;
 */
 	Int_t eventNumber=picoEvent->eventId();
+	Int_t runnumber = picoEvent->runId();
 	float refMultCorr =picoEvent->refMult();
 //		vector<PseudoJet> particles;
 //		particles.clear();
@@ -227,14 +236,17 @@ Int_t HFullJetAnalysis::Make() {
 	if( (picoEvent->refMult() ) >= NBTOFMultfit ) return kStOK;
 */
 	//initialize_____________________________
-	
-	for(int i=0;i<MAXTRACK;i++){
-		Pt[i] = -99;
-		Eta[i] = -99;
-		Phi[i] = -99;
-		Charge[i] = -99;
-		Dca[i] = -99;
-	}
+	memset(Pt, 0, sizeof(Pt));
+	memset(Px, 0, sizeof(Px));
+	memset(Py, 0, sizeof(Py));
+	memset(Pz, 0, sizeof(Pz));
+	memset(Eta, 0, sizeof(Eta));
+	memset(Phi, 0, sizeof(Phi));
+	memset(Charge, 0, sizeof(Charge));
+	memset(Dca, 0, sizeof(Dca));
+	memset(nHits, 0, sizeof(nHits));
+
+
 
 	double number_of_charge = 0;
 	int NPt =0;
@@ -243,53 +255,59 @@ Int_t HFullJetAnalysis::Make() {
 	//track loop
 	for(Int_t iTrk=0; iTrk<NoGlobalTracks; iTrk++) {
 
-		StPicoTrack *gTrack = pico->track(iTrk);
+		StPicoTrack *pTrack = pico->track(iTrk);
 
-        if(!gTrack) continue;
+        if(!pTrack) continue;
 	
-		if(!gTrack->isPrimary()) continue;
+		if(!pTrack->isPrimary()) continue;
 
 		//tofmatch_______________________________________________________________
-	/*	if( gTrack->isTofTrack() ) {
-                StPicoBTofPidTraits *trait = pico->btofPidTraits( gTrack->bTofPidTraitsIndex() );
-                if(TMath::Abs(gTrack->gDCA(pRcVx).Mag())<2 && fabs(gTrack->pMom().PseudoRapidity())<0.5 &&
-                             gTrack->nHitsFit()>10 && trait->btofBeta()>0){TOFMatch ++;}
+	/*	if( pTrack->isTofTrack() ) {
+                StPicoBTofPidTraits *trait = pico->btofPidTraits( pTrack->bTofPidTraitsIndex() );
+                if(TMath::Abs(pTrack->gDCA(pRcVx).Mag())<2 && fabs(pTrack->pMom().PseudoRapidity())<0.5 &&
+                             pTrack->nHitsFit()>10 && trait->btofBeta()>0){TOFMatch ++;}
                 }
 		*/
 
-		Double_t pt=gTrack->pMom().Perp();
-        Double_t eta=gTrack->pMom().PseudoRapidity();
-        Double_t phi=gTrack->pMom().Phi();
-        Double_t charge=gTrack->charge();
-        Double_t px=gTrack->pMom().x();
-        Double_t py=gTrack->pMom().y();
-        Double_t pz=gTrack->pMom().z();
-		Double_t dca=TMath::Abs(gTrack->gDCA(pRcVx).Mag());
+		Double_t pt=pTrack->pMom().Perp();
+        Double_t eta=pTrack->pMom().PseudoRapidity();
+        Double_t phi=pTrack->pMom().Phi();
+        Double_t charge=pTrack->charge();
+        Double_t px=pTrack->pMom().x();
+        Double_t py=pTrack->pMom().y();
+        Double_t pz=pTrack->pMom().z();
+		Double_t dca=TMath::Abs(pTrack->gDCA(pRcVx).Mag());
 		
 		//track cut____________________________________
 		//
-		if(gTrack->nHitsFit()<=15){ continue;}
+		if(pTrack->nHitsFit()<=15){ continue;}
 		
-        if(TMath::Abs(gTrack->gDCA(pRcVx).Mag())>=3) continue;
+        if(TMath::Abs(pTrack->gDCA(pRcVx).Mag())>=3) continue;
 		if(TMath::Abs(eta)>1.5) continue;
-	    if(pt<0.2) continue;
-		//if(gTrack->nHitsFit()*1./gTrack->nHitsMax()<0.52) continue;
+	    if(pt<0.1) continue;
+		if(pTrack->nHitsFit()*1./pTrack->nHitsMax()<0.52) continue;
 
         //_______________________________________
 
 		if(charge!=0) number_of_charge++;
 		
 
-		Pt[NPt] = pt;
+		Pt[NPt] = pt*charge;
+		Px[NPt] = px;
+		Py[NPt] = py;
+		Pz[NPt] = pz;
 		Eta[NPt] = eta;
 		Phi[NPt] = phi;
 		Charge[NPt] = charge;
 		Dca[NPt] = dca;
+		nHits[NPt] = pTrack->nHitsFit();
 
 		NPt++;
 
 	}
 	//track loop end
+	RunId 			= runnumber;
+	EventId			= eventNumber;
 	refmult         = refMultCorr;
 	Vz              = pRcVx.z();
 	Vx				= pRcVx.x();
@@ -450,6 +468,13 @@ Int_t HFullJetAnalysis::Make() {
 
   */  
 
+	//BBC
+	memset(mBbcQ,0,sizeof(mBbcQ));
+  	for(int ch=0;ch<24;ch++) {
+    	mBbcQ[ch]    = picoEvent->bbcAdcEast(ch);
+    	mBbcQ[ch+24] = picoEvent->bbcAdcWest(ch);
+
+  	}
 
 
 	outTree->Fill();

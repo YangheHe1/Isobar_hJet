@@ -81,40 +81,51 @@ class HFullJetAnalysis : public StMaker
 	Double_t	QyNeg[2][3];
 	Double_t	QwNeg[2][3];
 	
-	Double_t    refmult;
-	Double_t    Vx;
-	Double_t    Vy;
-   	Double_t    Vz;
-	Double_t	zdc;
-	Double_t	bbc;
-	Double_t	Vz_VPD;
-	Double_t 	NBTOFMultfit;
+
+	Int_t		RunId;
+	Int_t		EventId;
+	Short_t    refmult;
+	Float_t    Vx;
+	Float_t    Vy;
+   	Float_t    Vz;
+	Float_t	zdc;
+	Float_t	bbc;
+	Float_t	Vz_VPD;
+	Float_t 	NBTOFMultfit;
 
 	//TPC information
-	Double_t 	NCharge;
+	Float_t 	NCharge;
 	Int_t	 	numTrk;
    	
 	
-	Double_t		Pt[MAXTRACK];
-	Double_t		Eta[MAXTRACK];
-	Double_t		Phi[MAXTRACK];
-	Double_t  		Charge[MAXTRACK];
-	Double_t		Dca[MAXTRACK];
+	Float_t		Pt[MAXTRACK];
+	Float_t		Px[MAXTRACK];
+	Float_t		Py[MAXTRACK];
+	Float_t		Pz[MAXTRACK];
+	Float_t		Eta[MAXTRACK];
+	Float_t		Phi[MAXTRACK];
+	Float_t  		Charge[MAXTRACK];
+	Float_t		Dca[MAXTRACK];
+	Float_t		nHits[MAXTRACK];
 
 	//EPD hit information
     Int_t 		EPDmaxHit;
-    Int_t 		NumEPDHit;
+    Short_t 		NumEPDHit;
     
-    Double_t 	NumMip[MAXTRACK];
+    Float_t 	NumMip[MAXTRACK];
     Int_t 		TileID[MAXTRACK];
     
-    Double_t 	EPDX[MAXTRACK];
-    Double_t 	EPDY[MAXTRACK];
-    Double_t 	EPDZ[MAXTRACK];
-	Double_t	EPD_PP[MAXTRACK];
-	Double_t	EPD_TT[MAXTRACK];
-	Double_t	EPD_eta[MAXTRACK];
-	Double_t	EPD_phi[MAXTRACK];
+    Float_t 	EPDX[MAXTRACK];
+    Float_t 	EPDY[MAXTRACK];
+    Float_t 	EPDZ[MAXTRACK];
+	Float_t		EPD_PP[MAXTRACK];
+	Float_t		EPD_TT[MAXTRACK];
+	Float_t		EPD_eta[MAXTRACK];
+	Float_t		EPD_phi[MAXTRACK];
+
+
+	//BBC information
+	Int_t    mBbcQ[48];
 	
 	Double_t  	EPD_Psi;
 	Double_t  	TPC_Psi;
