@@ -175,7 +175,7 @@ void readin(){
             double binerr = hJetPt_SE[cent]->GetBinError(ibin);
             double binerref =hJetPt_ME[cent]->GetBinError(ibin);
             hRatio[cent]->SetBinContent(ibin,y/yref);
-            double err = (binerr/yref)-(y*binerref/(yref*yref));
+	    double err = sqrt( binerr*binerr/(yref*yref)+ binerref*binerref*y*y/pow(yref,4) );
             hRatio[cent]->SetBinError(ibin,err);
 
         }

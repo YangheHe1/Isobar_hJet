@@ -4,3 +4,5 @@ drawratio.C --------------- draw constant fit in negative region and cal scaling
 drawRho.C---------------------draw ME SE rho com
 drawRhocom.c-------------------draw SE rho com for different R
 drawJetSub.C--------------------draw jet (scaling factor=integral/integral
+drawResults_com.C-------------------draw w and w/o area jet results comparison
+drawMEScale_detail.C------------------draw me scale and before scale

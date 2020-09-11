@@ -36,7 +36,7 @@ TFile *fout;
 TLine* line;
 
 // settings____________________________________
-double Jet_R=0.2;
+double Jet_R=0.3;
 
 //__normalization range_________________________
 double regionP[2]={0,0};
@@ -97,7 +97,7 @@ const char* type[]={"same event", "mix event","mix event(scaled)","norm.region",
 void readin(){
     
     //===============================  read in =====================================
-    sprintf(name,"jet_SE_R2.root");
+    sprintf(name,"jet_SE_R3.root");
     cout<<name<<endl;
     fin = TFile::Open(name);
 
@@ -114,7 +114,7 @@ void readin(){
 
     }
     //===============================  read in =====================================
-    sprintf(name,"jet_ME_R2.root");
+    sprintf(name,"jet_ME_R3.root");
     cout<<name<<endl;
     fin = TFile::Open(name);
     
@@ -133,7 +133,7 @@ void readin(){
     }
 
     //===============================  read in =====================================
-    sprintf(name,"jet_Pythia6_R2.root");
+    sprintf(name,"jet_Pythia6_R3.root");
     cout<<name<<endl;
     fin = TFile::Open(name);
     
@@ -152,7 +152,7 @@ void readin(){
 
     hJetPt_pythia[1] = (TH1D*)hJetPt_pythia[0]->Clone();
     
-    cout<<"mix event "<<nmix[0]<<" same event "<<nraw[0]<<"  Pythia event: "<<npy[0]<<endl;
+    cout<<"mix event "<<nmix[0]<<" same event "<<nraw[0]<<endl;
     cout<<"mix eventP "<<nmix[1]<<" same eventP "<<nraw[1]<<endl;
     //_____________________________________________________________________
 
@@ -205,8 +205,7 @@ void readin(){
             double binerr = hJetPt_SE[cent]->GetBinError(ibin);
             double binerref =hJetPt_ME[cent]->GetBinError(ibin);
             hRatio[cent]->SetBinContent(ibin,y/yref);
-            //double err = (binerr/yref)-(y*binerref/(yref*yref));
-            double err = sqrt( binerr*binerr/(yref*yref)+ binerref*binerref*y*y/pow(yref,4) );
+            double err = (binerr/yref)-(y*binerref/(yref*yref));
             hRatio[cent]->SetBinError(ibin,err);
 
         }
@@ -259,7 +258,7 @@ void readin(){
     
     }//cent
 
-    //scaling_factor[1] = 1;
+    scaling_factor[1] = 1;
 
 	cout<<"scaling factor: CENTRAL  "<<scaling_factor[0]<<" PERIPHERAL "<<scaling_factor[1]<<endl;
    
@@ -282,8 +281,7 @@ void readin(){
                 double binerr = hJetPt_SE[cent]->GetBinError(ibin);
                 double binerref =hJetPt_ME_scaled[cent]->GetBinError(ibin);
                 hRatio_scaled[cent]->SetBinContent(ibin,y/yref);
-                //double err = (binerr/yref)-(y*binerref/(yref*yref));
-                double err = sqrt( binerr*binerr/(yref*yref)+ binerref*binerref*y*y/pow(yref,4) );
+                double err = (binerr/yref)-(y*binerref/(yref*yref));
                 hRatio_scaled[cent]->SetBinError(ibin,err);    
 
         }
@@ -344,34 +342,30 @@ void readin(){
         }
 
         //_______norm region_______________________________________
-        
-        
-    }
+        norm_region[cent] =new TGraph();
+        sprintf(name,"norm_region_cent%d",cent);
+        norm_region[cent]->SetName(name);
+        Int_t b_point_norm = 0;
 
-    //____ME-SE jet___________________________________________
-    for(int cent=0;cent<2;cent++){
+         for(int j=1;j<r_binmax;j++){
+                double y_ME = hJetPt_ME[cent]->GetBinContent(j);
+                double x_val_ME = hJetPt_ME[cent]->GetBinCenter(j);
 
-        
-        hJet_ME_Sub_SE[cent] = (TH1D*) hJetPt_SE[cent]->Clone();
-        Int_t binmax=hJetPt_SE[cent]->FindLastBinAbove(0,1);
-        for(int ibin=1;ibin<=binmax;ibin++){
-            double y = hJetPt_SE[cent]->GetBinContent(ibin);
-            double yref = hJetPt_ME_scaled[cent]->GetBinContent(ibin);
-            if(y-yref<0)
-			    {hJet_ME_Sub_SE[cent]->SetBinContent(ibin,0);
-			    continue;}
-            double binerr = hJetPt_SE[cent]->GetBinError(ibin);
-            double binerref =hJetPt_ME_scaled[cent]->GetBinError(ibin);
-            hJet_ME_Sub_SE[cent]->SetBinContent(ibin,y-yref);
-            double err = sqrt(binerr*binerr+binerref*binerref);
-            hJet_ME_Sub_SE[cent]->SetBinError(ibin,err);
+                if(x_val_ME<region_begin) continue;
+                if(x_val_ME>region_stop)  break;
+                
+                if(b_point_norm == 0) norm_region[cent] ->SetPoint(b_point_norm,x_val_ME,0.0);
+                norm_region[cent] ->SetPoint(b_point_norm+1,x_val_ME,y_ME);
+                norm_region[cent] ->SetPoint(b_point_norm+2,x_val_ME,0.0);
 
+                b_point_norm++;            
         }
 
+
+        
     }
-    //subtraction
 
-
+   
 
 }
 
@@ -444,8 +438,8 @@ void drawPtCompare(int _form){
             hhtem[0] -> GetYaxis()->SetTitle(ytile);
             //hhtem[0] -> GetZaxis()->SetTitle(ztile);
             
-            if(_form==0) hhtem[0] -> GetXaxis()->SetRangeUser(-5,30);
-            if(_form==1) hhtem[0] -> GetXaxis()->SetRangeUser(-5,30);
+            if(_form==0) hhtem[0] -> GetXaxis()->SetRangeUser(-7,10);
+            if(_form==1) hhtem[0] -> GetXaxis()->SetRangeUser(-2,10);
             //hhtem[0] -> GetYaxis()->SetRangeUser(0,5);
             hhtem[0] -> GetXaxis()->SetNdivisions(507);
             hhtem[0] -> GetYaxis()->SetNdivisions(507);
@@ -473,7 +467,7 @@ void drawPtCompare(int _form){
             
             tx0=0.50;ty0=0.76;
             //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, R=0.2",tsize*1.,1,12);
+            myTextF(tx0,ty0,"Anti-k_{T}, R=0.3",tsize*1.,1,12);
 
 	        tx0=0.50, ty0=0.69;
 	        myTextF(tx0,ty0,"h^{#pm}+jet,7<P_{T}^{trig}<30GeV/c",tsize*1.,1,12);
@@ -518,8 +512,8 @@ void drawPtCompare(int _form){
     hhtem[3] -> GetYaxis()->SetTitle(ytile1);
     hhtem[3] -> GetXaxis()->SetNdivisions(507);
     hhtem[3] -> GetYaxis()->SetNdivisions(507);
-    if(_form==0) hhtem[3] -> GetXaxis()->SetRangeUser(-5,30);
-    if(_form==1) hhtem[3] -> GetXaxis()->SetRangeUser(-5,30);
+    if(_form==0) hhtem[3] -> GetXaxis()->SetRangeUser(-7,10);
+    if(_form==1) hhtem[3] -> GetXaxis()->SetRangeUser(-2,10);
 
     hhtem[3] -> GetYaxis()->SetTitleOffset(0.7); 
     hhtem[3] -> GetYaxis()->SetLabelSize(0.07);
@@ -532,8 +526,8 @@ void drawPtCompare(int _form){
 
 
     TLine *t1;
-    if(_form==0) t1= new TLine(-5,1,30,1);
-    if(_form==1) t1= new TLine(-5,1,30,1);
+    if(_form==0) t1= new TLine(-7,1,11,1);
+    if(_form==1) t1= new TLine(-2,1,11,1);
     t1->SetLineStyle(2);
 	t1->Draw("same");  
 
@@ -541,7 +535,7 @@ void drawPtCompare(int _form){
 
     //______________________zoom in panel
     if(_form==0) pad[0][2]=new TPad("pad1","pad1",0.12,0.54,0.42,0.99);
-    if(_form==1) pad[0][2]=new TPad("pad1","pad1",0.58,0.54,0.88,0.99);
+    if(_form==1) pad[0][2]=new TPad("pad1","pad1",0.12,0.54,0.42,0.99);
     
     pad[0][2]->Draw();
 
@@ -597,114 +591,236 @@ void drawPtCompare(int _form){
     
 }
 
-
-void drawSESubME(){
+void drawPt_beforeScaled_Compare(int _form){
+    
     int nx = 1;
     int ny = 1;
     
     double tx0=0.1, ty0=0.1;
     float tsize = 0.05;
     
-    sprintf(name, "SESubME");
+    sprintf(name, "Pt_beforeScaled_Compar_%d",_form);
     
-    can[0] = newDivCan2( name, Lmrg,llmrg, ratx,  raty, nx, ny, 400, 400 );
+    can[0]= new TCanvas(name,"Graph",10,10,1100,900);    
+	pad[0][0]=new TPad("pad1","pad1",0.06,0.4,0.94,0.94);
+    pad[0][0]->Draw();
+	pad[0][1]=new TPad("pad1","pad1",0.06,0.06,0.94,0.4);
+    pad[0][1]->Draw();
     
-    for(int iy=0; iy<ny; iy++){
-        for(int ix=0; ix<nx; ix++){
-            
-            int ipad = ix   + iy* nx;
-            
-            sprintf(name,"%s_pad_%i_%i",can[0]->GetName(),ix, iy);
-            pad[ix][iy] = (TPad*) gROOT->FindObject(name);
-            pad[ix][iy]->cd();
-            
-            gPad->SetTickx(1);
-            gPad->SetTicky(1);
-            gPad->SetLogy(1);
-            gStyle->SetOptStat(0);      //remove the entries,mean,RMS in the upper right.
-            gStyle->SetOptTitle(0);
-            
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE[0]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE[1]  ->Clone();
-            hhtem[2] =  (TH1D*)    hJetPt_pythia[0]  ->Clone();
+    pad[0][0]->SetTopMargin(0.08);
+	pad[0][0]->SetBottomMargin(0);
+    pad[0][0]->cd();
             
             
+    gPad->SetTickx(1);
+    gPad->SetTicky(1);
+    gPad->SetLogy(1);
+    gStyle->SetOptStat(0);      //remove the entries,mean,RMS in the upper right.
+    gStyle->SetOptTitle(0);
             
+    hhtem[0] =  (TH1D*)    hJetPt_SE[_form]  ->Clone();
+    hhtem[1] =  (TH1D*)    hJetPt_ME[_form]  ->Clone();
+    //gr[1]    =  (TGraph*)  gJetPt_ME_scaled[_form] ->Clone();
+    //hhtem[2] =  (TH1D*)    hJetPt_pythia[_form]  ->Clone();
+    gr[0]    =  (TGraph*)  norm_region[_form] ->Clone();      
+    
+    hhtem[0]->SetMarkerStyle(29);
+    hhtem[0]->SetMarkerSize(1);
+    hhtem[0]->SetMarkerColor(2);
+    hhtem[0]->SetLineColor(2);
+
+    //hhtem[1]->SetMarkerStyle(20);
+    //hhtem[1]->SetMarkerSize(0.7);
+    //hhtem[1]->SetMarkerColor(4);
+    hhtem[1]->SetLineColor(kGray+2);
+    hhtem[1]->SetLineWidth(1.5);
+    hhtem[1]->SetLineStyle(2);
+    hhtem[1]->SetFillColor(kGray+2);
+    hhtem[1]->SetFillStyle(3004);
+/*
+    gr[1]->SetLineColor(kGray+2);
+    gr[1]->SetLineWidth(1.5);
+    gr[1]->SetLineStyle(2);
+    gr[1]->SetFillColor(kGray+2);
+    gr[1]->SetFillStyle(3004);
+*/    
+    
+    gr[0]->SetLineStyle(2);
+    gr[0]->SetFillColor(kGreen+2);
+    gr[0]->SetFillStyle(3002);;
+    
+    
+
             
-            char *xtile ="p_{T,jet}^{reco,ch}( =p_{T,jet}^{raw,ch}-#rhoA ) [Gev/c]";
+            //char *xtile ="p_{T,jet}^{reco,ch}( =p_{T,jet}^{raw,ch}-#rhoA ) [Gev/c]";
             char *ytile ="(1/N_{trig})d^{2}N_{jets}/(dp_{T,jet}^{reco,ch}d#eta) (Gev/c)^{-1} ";
             
-    hhtem[0]->SetMarkerStyle(25);
-    hhtem[0]->SetMarkerSize(0.7);
-    hhtem[0]->SetMarkerColor(1);
-    hhtem[0]->SetLineColor(1);
-
-    hhtem[1]->SetMarkerStyle(24);
-    hhtem[1]->SetMarkerSize(0.7);
-    hhtem[1]->SetMarkerColor(kRed);
-    hhtem[1]->SetLineColor(kRed);
-
-    hhtem[2]->SetMarkerStyle(20);
-    hhtem[2]->SetMarkerSize(0.7);
-    hhtem[2]->SetMarkerColor(kGreen+2);
-    hhtem[2]->SetLineColor(kGreen+2);
+            //hhtem[0] -> GetXaxis()->SetTitle(xtile);
+            hhtem[0] -> GetYaxis()->SetTitle(ytile);
             //hhtem[0] -> GetZaxis()->SetTitle(ztile);
             
-            hhtem[0] -> GetXaxis()->SetTitle(xtile);
-            hhtem[0] -> GetYaxis()->SetTitle(ytile);
-            //hhtem[0] -> GetXaxis()->SetRangeUser(0,1100);
-            //hhtem[0] -> GetYaxis()->SetRangeUser(0,1);
+            if(_form==0) hhtem[0] -> GetXaxis()->SetRangeUser(-7,10);
+            if(_form==1) hhtem[0] -> GetXaxis()->SetRangeUser(-2,10);
+            //hhtem[0] -> GetYaxis()->SetRangeUser(0,5);
             hhtem[0] -> GetXaxis()->SetNdivisions(507);
             hhtem[0] -> GetYaxis()->SetNdivisions(507);
             
-            hhtem[0] -> GetYaxis()->SetTitleOffset(1.5);
             
-            
-           
+            hhtem[0] -> GetYaxis()->SetLabelSize(0.05);
+            hhtem[0] -> GetYaxis()->SetTitleOffset(1.0);
+            hhtem[0] -> GetYaxis()->SetTitleSize(0.05);
+            hhtem[0]->GetYaxis()->CenterTitle(true);
             
             
             hhtem[0]->DrawClone("P");
-            hhtem[1]->DrawClone("Psame");
-            hhtem[2]->DrawClone("Psame");
+            hhtem[1]->DrawClone("hist same");
+            //gr[1]->DrawClone("same F2");
+            //hhtem[2]->DrawClone("same flx");
+            gr[0]->DrawClone("same F");
+ 
+            
+
+            //hhtem[1]->DrawClone("same");
             
             tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
+            if(_form==0) myTextF(tx0,ty0,"Isobar 200GeV, 0-10%",tsize*1.,1,12);
+            if(_form==1) myTextF(tx0,ty0,"Isobar 200GeV, 60-80%",tsize*1.,1,12);
+            
             tx0=0.50;ty0=0.76;
             //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, R=0.2",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Anti-k_{T}, R=0.3",tsize*1.,1,12);
 
-	    tx0=0.50, ty0=0.69;
-	    myTextF(tx0,ty0,"h^{#pm}+jet",tsize*0.8,1,12);
-
-
-            leg = mylegF(0.50,0.45,0.65,0.60,0.03);
-            leg->AddEntry(hhtem[0],"0-10%","lp");
-
-            leg->AddEntry(hhtem[1],"60-80%","lp");
-
-            leg->AddEntry(hhtem[2],"Pythia6 STAR tune","lp");
+	        tx0=0.50, ty0=0.69;
+	        myTextF(tx0,ty0,"h^{#pm}+jet,7<P_{T}^{trig}<30GeV/c",tsize*1.,1,12);
             
-            leg->DrawClone();
-            sprintf(name,"%s.pdf",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
+            float _yy = 0.38;
+            leg = mylegF(0.6,_yy,0.8,0.58,0.05);
             
-            //delete can[0];
+            leg->AddEntry(hhtem[0],type[0],"pl");
+	        leg->AddEntry(hhtem[1],"mix events","l");
+	    //leg->AddEntry(hhtem[2],"Pythia6 STAR tune","l");
+	        leg->AddEntry(gr[0],"norm. region","f");
+//            leg->AddEntry(gr[1],"Fill region range2","f");
+            leg->Draw("same");
             
-        }//ix
-    }//iy
+            
+            
+    pad[0][1]->SetTopMargin(0.00);
+	pad[0][1]->SetBottomMargin(0.3);
 
+    pad[0][1]->cd();
+
+    gPad->SetTickx(1);
+    gPad->SetTicky(1);
+    gPad->SetLogy(1);
+	gStyle->SetOptStat(0);
+	gStyle->SetOptTitle(0);    
+
+    char *xtile ="p_{T,jet}^{reco,ch}( =p_{T,jet}^{raw,ch}-#rhoA ) [Gev/c]";
+    char *ytile1 ="SE/ME";
+
+    hhtem[3] =  (TH1D*)    hRatio[_form] ->Clone();
+    
+
+    hhtem[3]->SetMarkerStyle(29);
+    hhtem[3]->SetMarkerSize(0.7);
+    hhtem[3]->SetMarkerColor(2);
+    hhtem[3]->SetLineColor(2);
+
+    
+
+    hhtem[3] -> GetXaxis()->SetTitle(xtile);
+    hhtem[3] -> GetYaxis()->SetTitle(ytile1);
+    hhtem[3] -> GetXaxis()->SetNdivisions(507);
+    hhtem[3] -> GetYaxis()->SetNdivisions(507);
+    if(_form==0) hhtem[3] -> GetXaxis()->SetRangeUser(-7,10);
+    if(_form==1) hhtem[3] -> GetXaxis()->SetRangeUser(-2,10);
+
+    hhtem[3] -> GetYaxis()->SetTitleOffset(0.7); 
+    hhtem[3] -> GetYaxis()->SetLabelSize(0.07);
+    hhtem[3] -> GetXaxis()->SetLabelSize(0.07);
+    hhtem[3]->GetYaxis()->SetTitleSize(0.07);             
+    hhtem[3]->GetXaxis()->SetTitleSize(0.08);
+    hhtem[3]->GetYaxis()->CenterTitle(true);           
+    hhtem[3]->DrawClone("P");
+ 
+
+
+    TLine *t1;
+    if(_form==0) t1= new TLine(-7,1,11,1);
+    if(_form==1) t1= new TLine(-2,1,11,1);
+    t1->SetLineStyle(2);
+	t1->Draw("same");  
+
+
+
+    //______________________zoom in panel
+    if(_form==0) pad[0][2]=new TPad("pad1","pad1",0.12,0.54,0.42,0.99);
+    if(_form==1) pad[0][2]=new TPad("pad1","pad1",0.12,0.54,0.42,0.99);
+    
+    pad[0][2]->Draw();
+
+    pad[0][2]->SetBottomMargin(0.35);
+    pad[0][2]->SetLeftMargin(0.15);
+    pad[0][2]->cd();
+
+    gPad->SetFillStyle(4000); // make it transparent
+    
+    gPad->SetTickx(1);
+    gPad->SetTicky(1);
+	gStyle->SetOptStat(0);
+	gStyle->SetOptTitle(0);    
+
+    char *xtile ="p_{T,jet}^{reco,ch} [Gev/c]";
+    char *ytile1 ="SE/ME";
+
+    hhtem[4] =  (TH1D*)    hRatio[_form] ->Clone();  
+
+    hhtem[4]->SetMarkerStyle(29);
+    hhtem[4]->SetMarkerSize(0.7);
+    hhtem[4]->SetMarkerColor(2);
+    hhtem[4]->SetLineColor(2);
+
+    
+
+    hhtem[4] -> GetXaxis()->SetTitle(xtile);
+    hhtem[4] -> GetYaxis()->SetTitle(ytile1);
+    hhtem[4] -> GetXaxis()->SetNdivisions(507);
+    hhtem[4] -> GetYaxis()->SetNdivisions(507);
+    if(_form==0)hhtem[4] -> GetXaxis()->SetRangeUser(regionC[0],regionC[1]-1);
+    if(_form==1)hhtem[4] -> GetXaxis()->SetRangeUser(regionP[0],regionP[1]-1);
+
+    hhtem[4] -> GetYaxis()->SetTitleOffset(0.6); 
+    hhtem[4] -> GetXaxis()->SetTitleOffset(1.1);
+    hhtem[4]->GetXaxis()->SetTitleSize(0.12);
+    hhtem[4]->GetYaxis()->SetTitleSize(0.12);
+    hhtem[4] -> GetYaxis()->SetLabelSize(0.11);
+    hhtem[4] -> GetXaxis()->SetLabelSize(0.12);
+    hhtem[4]->GetYaxis()->CenterTitle(true);  
+    hhtem[4]->GetXaxis()->CenterTitle(true);          
+    hhtem[4]->DrawClone("P");
+
+    TLine *t2;
+    if(_form==0) t2 = new TLine(regionC[0],1,regionC[1],1);
+    if(_form==1) {
+        t2 = new TLine(regionP[0],1,regionP[1],1);
+        if(regionP[0]==0) t2 = new TLine(regionP[0],1,1,1);}
+    t2->SetLineStyle(2);
+	t2->Draw("same");
+            
+   
+    
 }
 
- void drawJetSub_f_zoom(){
+ void drawMEScale_detail(){
     
     readin();
     for(int i=0;i<2;i++){
         drawPtCompare(i);
-    //drawPtScaledCompare(i);
+        drawPt_beforeScaled_Compare(i);
     
     }
-    drawSESubME();
+    
     
 }
    

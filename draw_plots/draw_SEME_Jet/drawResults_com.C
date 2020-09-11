@@ -75,6 +75,43 @@ double scalingfactor_trg7_C[3];
 double scalingfactor_trg7_P[3];
 
 //__________________________________________________________
+TH1D *hJetPt_SE_trg7_C_old[3];
+TH1D *hNtrigger_SE_trg7_C_old[3];
+TH1D *hJetPt_ME_trg7_C_old[3];
+TH1D *hNtrigger_ME_trg7_C_old[3];
+TH1D *hJetPt_ME_scaled_trg7_C_old[3];
+TH1D *hJet_ME_Sub_SE_trg7_C_old[3];
+
+TH1D *hJetPt_SE_trg7_P_old[3];
+TH1D *hNtrigger_SE_trg7_P_old[3];
+TH1D *hJetPt_ME_trg7_P_old[3];
+TH1D *hNtrigger_ME_trg7_P_old[3];
+TH1D *hJetPt_ME_scaled_trg7_P_old[3];
+TH1D *hJet_ME_Sub_SE_trg7_P_old[3];
+
+TH1D *hJetPt_SE_trg9_C_old[3];
+TH1D *hNtrigger_SE_trg9_C_old[3];
+TH1D *hJetPt_ME_trg9_C_old[3];
+TH1D *hNtrigger_ME_trg9_C_old[3];
+TH1D *hJetPt_ME_scaled_trg9_C_old[3];
+TH1D *hJet_ME_Sub_SE_trg9_C_old[3];
+
+TH1D *hJetPt_SE_trg9_P_old[3];
+TH1D *hNtrigger_SE_trg9_P_old[3];
+TH1D *hJetPt_ME_trg9_P_old[3];
+TH1D *hNtrigger_ME_trg9_P_old[3];
+TH1D *hJetPt_ME_scaled_trg9_P_old[3];
+TH1D *hJet_ME_Sub_SE_trg9_P_old[3];
+
+double scalingfactor_trg9_C_old[3];
+double scalingfactor_trg9_P_old[3];
+double scalingfactor_trg7_C_old[3];
+double scalingfactor_trg7_P_old[3];
+
+
+
+
+
 TLegend *leg;
 
 TGraphErrors *grtmpErr0[100];
@@ -116,7 +153,7 @@ void readin(){
     int j=i+2;
     double jet_radius= 0.1*j;
     //===============================  read in =====================================
-    sprintf(name,"R%i/jet_SE_R%i.root",j,j);
+    sprintf(name,"new_trg7/R%i/jet_SE_R%i.root",j,j);
     cout<<name<<endl;
     fin = TFile::Open(name);
 
@@ -173,7 +210,7 @@ void readin(){
 
     
     //===============================  read in =====================================
-    sprintf(name,"R%i/jet_ME_R%i.root",j,j);
+    sprintf(name,"new_trg7/R%i/jet_ME_R%i.root",j,j);
     cout<<name<<endl;
     fin = TFile::Open(name);
     
@@ -202,7 +239,7 @@ void readin(){
     hJetPt_ME_trg9_P[i] -> Scale(1./nmix_trg9_P[i]);
     //___________________________________________
 
-    sprintf(name,"R%i/jet_ME_R%i.root",j,j);
+    sprintf(name,"new_trg7/R%i/jet_ME_R%i.root",j,j);
     cout<<name<<endl;
     fin = TFile::Open(name);
     //trg7-30
@@ -346,14 +383,14 @@ void readin(){
     }
 
     //read in scaling factor
-    ifstream f_T7("scalingfactor_T7.txt");
+    ifstream f_T7("new_trg7/scalingfactor_T7.txt");
     for(int i=0;i<3;i++){
         f_T7>>scalingfactor_trg7_C[i]>>scalingfactor_trg7_P[i];
         cout<<scalingfactor_trg7_C[i]<<"  "<<scalingfactor_trg7_P[i]<<endl;
     }  
     f_T7.close();     
 
-    ifstream f_T9("scalingfactor_T9.txt");
+    ifstream f_T9("new_trg7/scalingfactor_T9.txt");
     for(int i=0;i<3;i++){
         f_T9>>scalingfactor_trg9_C[i]>>scalingfactor_trg9_P[i];
         cout<<scalingfactor_trg9_C[i]<<"  "<<scalingfactor_trg9_P[i]<<endl;
@@ -465,218 +502,374 @@ void readin(){
 }
 
 
+//===============================================================
+void readin_old(){
+    
+    float nraw_trg7_P_old[3];
+    float nraw_trg7_C_old[3];
+    float nraw_trg9_P_old[3];
+    float nraw_trg9_C_old[3];
 
-void drawSESubME_trg7(int _form){
-    int nx = 1;
-    int ny = 1;
+    float nmix_trg7_P_old[3];
+    float nmix_trg7_C_old[3];
+    float nmix_trg9_P_old[3];
+    float nmix_trg9_C_old[3];
+
+
+    for(int i=0;i<3;i++){
+
+    int j=i+2;
+    double jet_radius= 0.1*j;
+    //===============================  read in =====================================
+    sprintf(name,"M4_trg9/R%i/jet_SE_R%i.root",j,j);
+    cout<<name<<endl;
+    fin = TFile::Open(name);
+
+    //trg9-30
+    //central
+    //float nraw_trg9_C[3];
     
-    double tx0=0.1, ty0=0.1;
-    float tsize = 0.05;
+    sprintf(name,"recoil_jet_trg9_30_cent0");
+    hJetPt_SE_trg9_C_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger9_30_cent0");
+    hNtrigger_SE_trg9_C_old[i]    = (TH1D*)fin->Get(name);
+
+    nraw_trg9_C_old[i] = hNtrigger_SE_trg9_C_old[i] -> GetEntries();
+    hJetPt_SE_trg9_C_old[i] -> Scale(1./nraw_trg9_C_old[i]);
+
+    //peripheral
+    //float nraw_trg9_P[3];
     
-    sprintf(name, "SESubME_trg7_%i",_form);
+    sprintf(name,"recoil_jet_trg9_30_cent1");
+    hJetPt_SE_trg9_P_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger9_30_cent1");
+    hNtrigger_SE_trg9_P_old[i]    = (TH1D*)fin->Get(name);
+
+    nraw_trg9_P_old[i] = hNtrigger_SE_trg9_P_old[i] -> GetEntries();
+    hJetPt_SE_trg9_P_old[i] -> Scale(1./nraw_trg9_P_old[i]);
+    //___________________________________________
+
+    //trg7-30
+    //central
+    //float nraw_trg7_C[3];
     
-    can[0] = newDivCan2( name, Lmrg,llmrg, ratx,  raty, nx, ny, 400, 400 );
+    sprintf(name,"recoil_jet_cent0");
+    hJetPt_SE_trg7_C_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent0");
+    hNtrigger_SE_trg7_C_old[i]    = (TH1D*)fin->Get(name);
+
+    nraw_trg7_C_old[i] = hNtrigger_SE_trg7_C_old[i] -> GetEntries();
+    hJetPt_SE_trg7_C_old[i] -> Scale(1./nraw_trg7_C_old[i]);
+
+    //peripheral
+    //float nraw_trg7_P[3];
     
-    for(int iy=0; iy<ny; iy++){
-        for(int ix=0; ix<nx; ix++){
-            
-            int ipad = ix   + iy* nx;
-            
-            sprintf(name,"%s_pad_%i_%i",can[0]->GetName(),ix, iy);
-            pad[ix][iy] = (TPad*) gROOT->FindObject(name);
-            pad[ix][iy]->cd();
-            
-            gPad->SetTickx(1);
-            gPad->SetTicky(1);
-            gPad->SetLogy(1);
-            gStyle->SetOptStat(0);      //remove the entries,mean,RMS in the upper right.
-            gStyle->SetOptTitle(0);
-            
-            if(_form==0){
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg7_C[0]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg7_C[1]  ->Clone();
-            hhtem[2] =  (TH1D*)    hJet_ME_Sub_SE_trg7_C[2]  ->Clone();
+    sprintf(name,"recoil_jet_cent1");
+    hJetPt_SE_trg7_P_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent1");
+    hNtrigger_SE_trg7_P_old[i]    = (TH1D*)fin->Get(name);
+
+    nraw_trg7_P_old[i] = hNtrigger_SE_trg7_P_old[i] -> GetEntries();
+    hJetPt_SE_trg7_P_old[i] -> Scale(1./nraw_trg7_P_old[i]);
+
+    
+    //===============================  read in =====================================
+    sprintf(name,"M4_trg9/R%i/jet_ME_R%i.root",j,j);
+    cout<<name<<endl;
+    fin = TFile::Open(name);
+    
+    //trg9-30
+    //central
+    
+    sprintf(name,"recoil_jet_cent0");
+    hJetPt_ME_trg9_C_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent0");
+    hNtrigger_ME_trg9_C_old[i]    = (TH1D*)fin->Get(name);
+
+    nmix_trg9_C_old[i] = hNtrigger_ME_trg9_C_old[i] -> GetEntries();
+    hJetPt_ME_trg9_C_old[i] -> Scale(1./nmix_trg9_C_old[i]);
+
+    //peripheral
+    //float nraw_trg9_P[3];
+    
+    sprintf(name,"recoil_jet_cent1");
+    hJetPt_ME_trg9_P_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent1");
+    hNtrigger_ME_trg9_P_old[i]    = (TH1D*)fin->Get(name);
+
+    nmix_trg9_P_old[i] = hNtrigger_ME_trg9_P_old[i] -> GetEntries();
+    hJetPt_ME_trg9_P_old[i] -> Scale(1./nmix_trg9_P_old[i]);
+    //___________________________________________
+
+    sprintf(name,"M4_trg9/R%i/jet_ME_R%i.root",j,j);
+    cout<<name<<endl;
+    fin = TFile::Open(name);
+    //trg7-30
+    //central
+    //float nraw_trg7_C[3];
+    
+    sprintf(name,"recoil_jet_cent0");
+    hJetPt_ME_trg7_C_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent0");
+    hNtrigger_ME_trg7_C_old[i]    = (TH1D*)fin->Get(name);
+
+    nmix_trg7_C_old[i] = hNtrigger_ME_trg7_C_old[i] -> GetEntries();
+    hJetPt_ME_trg7_C_old[i] -> Scale(1./nmix_trg7_C_old[i]);
+
+    //peripheral
+    //float nraw_trg7_P[3];
+    
+    sprintf(name,"recoil_jet_cent1");
+    hJetPt_ME_trg7_P_old[i]     = (TH1D*)fin->Get(name);
+
+    sprintf(name,"number_of_trigger_cent1");
+    hNtrigger_ME_trg7_P_old[i]    = (TH1D*)fin->Get(name);
+
+    nmix_trg7_P_old[i] = hNtrigger_ME_trg7_P_old[i] -> GetEntries();
+    hJetPt_ME_trg7_P_old[i] -> Scale(1./nmix_trg7_P_old[i]);
+
+    
+    //_____________________________________________________________________
+
+    //trg9-30
+    //central
+
+            Int_t binmax=hJetPt_SE_trg9_C_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_SE_trg9_C_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_SE_trg9_C_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_SE_trg9_C_old[i]->GetBinError(ibin);
+                hJetPt_SE_trg9_C_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_SE_trg9_C_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
             }
-            else{
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg7_P[0]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg7_P[1]  ->Clone();
-            hhtem[2] =  (TH1D*)    hJet_ME_Sub_SE_trg7_P[2]  ->Clone();
+
+    //peripheral
+            binmax=hJetPt_SE_trg9_P_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_SE_trg9_P_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_SE_trg9_P_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_SE_trg9_P_old[i]->GetBinError(ibin);
+                hJetPt_SE_trg9_P_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_SE_trg9_P_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
 
             }
-            
-            
-            
-            char *xtile ="p_{T,jet}^{reco,ch}( =p_{T,jet}^{raw,ch}-#rhoA ) [Gev/c]";
-            char *ytile ="(1/N_{trig})d^{2}N_{jets}/(dp_{T,jet}^{reco,ch}d#eta) (Gev/c)^{-1} ";
-            
-    hhtem[0]->SetMarkerStyle(22);
-    hhtem[0]->SetMarkerSize(0.7);
-    hhtem[0]->SetMarkerColor(kGreen+2);
-    hhtem[0]->SetLineColor(kGreen+2);
 
-    hhtem[1]->SetMarkerStyle(20);
-    hhtem[1]->SetMarkerSize(0.7);
-    hhtem[1]->SetMarkerColor(kBlue);
-    hhtem[1]->SetLineColor(kBlue);
+    //trg7-30
+    //central
 
-    hhtem[2]->SetMarkerStyle(25);
-    hhtem[2]->SetMarkerSize(0.7);
-    hhtem[2]->SetMarkerColor(1);
-    hhtem[2]->SetLineColor(1);
-            //hhtem[0] -> GetZaxis()->SetTitle(ztile);
-            
-            hhtem[0] -> GetXaxis()->SetTitle(xtile);
-            hhtem[0] -> GetYaxis()->SetTitle(ytile);
-            //hhtem[0] -> GetXaxis()->SetRangeUser(0,1100);
-            //hhtem[0] -> GetYaxis()->SetRangeUser(0,1);
-            hhtem[0] -> GetXaxis()->SetNdivisions(507);
-            hhtem[0] -> GetYaxis()->SetNdivisions(507);
-            
-            hhtem[0] -> GetYaxis()->SetTitleOffset(1.5);
-            
-            
-           
-            
-            
-            hhtem[0]->DrawClone("P");
-            hhtem[1]->DrawClone("Psame");
-            hhtem[2]->DrawClone("Psame");
-            
-            tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
-            tx0=0.50;ty0=0.76;
-            //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, 7<P^{trg}_{T}<30 GeV/c",tsize*0.8,1,12);
+            binmax=hJetPt_SE_trg7_C_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_SE_trg7_C_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_SE_trg7_C_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_SE_trg7_C_old[i]->GetBinError(ibin);
+                hJetPt_SE_trg7_C_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_SE_trg7_C_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
 
-	        tx0=0.50, ty0=0.69;
-	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,0-10%",tsize*0.8,1,12);
-            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,60-80%",tsize*0.8,1,12);
+            }
+
+    //peripheral
+            binmax=hJetPt_SE_trg7_P_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_SE_trg7_P_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_SE_trg7_P_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_SE_trg7_P_old[i]->GetBinError(ibin);
+                hJetPt_SE_trg7_P_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_SE_trg7_P_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
+            }
+    
 
 
-            leg = mylegF(0.50,0.45,0.65,0.60,0.03);
-            leg->AddEntry(hhtem[0],"R=0.2","lp");
+    
 
-            leg->AddEntry(hhtem[1],"R=0.3","lp");
+    //ME——————————————————————————————————————————————
+    //trg9-30
+    //central
 
-            leg->AddEntry(hhtem[2],"R=0.4","lp");
-            
-            leg->DrawClone();
-            //sprintf(name,"%s.pdf",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
-            
-            //delete can[0];
-            
-        }//ix
-    }//iy
+            Int_t binmax=hJetPt_ME_trg9_C_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_ME_trg9_C_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_ME_trg9_C_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_ME_trg9_C_old[i]->GetBinError(ibin);
+                hJetPt_ME_trg9_C_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_ME_trg9_C_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
+            }
+
+    //peripheral
+            binmax=hJetPt_ME_trg9_P_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_ME_trg9_P_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_ME_trg9_P_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_ME_trg9_P_old[i]->GetBinError(ibin);
+                hJetPt_ME_trg9_P_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_ME_trg9_P_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
+            }
+
+    //trg7-30
+    //central
+
+            binmax=hJetPt_ME_trg7_C_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_ME_trg7_C_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_ME_trg7_C_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_ME_trg7_C_old[i]->GetBinError(ibin);
+                hJetPt_ME_trg7_C_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_ME_trg7_C_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
+            }
+
+    //peripheral
+            binmax=hJetPt_ME_trg7_P_old[i]->FindLastBinAbove(0,1);
+            for(int ibin=1;ibin<=binmax;ibin++){
+                double y = hJetPt_ME_trg7_P_old[i]->GetBinContent(ibin);
+                double deltap = hJetPt_ME_trg7_P_old[i]->GetBinWidth(ibin);
+                double deltaeta = 2-(2*jet_radius);
+                double binerr = hJetPt_ME_trg7_P_old[i]->GetBinError(ibin);
+                hJetPt_ME_trg7_P_old[i]->SetBinContent(ibin,y/(deltap*deltaeta));
+                hJetPt_ME_trg7_P_old[i]->SetBinError(ibin,binerr/(deltap*deltaeta));
+
+            }
+    
+
+    }
+
+    //read in scaling factor
+    ifstream f_T7("M4_trg9/scalingfactor_T7.txt");
+    for(int i=0;i<3;i++){
+        f_T7>>scalingfactor_trg7_C_old[i]>>scalingfactor_trg7_P_old[i];
+        cout<<scalingfactor_trg7_C_old[i]<<"  "<<scalingfactor_trg7_P_old[i]<<endl;
+    }  
+    f_T7.close();     
+
+    ifstream f_T9("M4_trg9/scalingfactor_T9.txt");
+    for(int i=0;i<3;i++){
+        f_T9>>scalingfactor_trg9_C_old[i]>>scalingfactor_trg9_P_old[i];
+        cout<<scalingfactor_trg9_C_old[i]<<"  "<<scalingfactor_trg9_P_old[i]<<endl;
+    }
+    f_T9.close();
+    
+
+    
+   
+    //_____________ME sclaing_____________________
+    for(int i=0;i<3;i++){
+
+        
+
+	    hJetPt_ME_scaled_trg9_C_old[i] = (TH1D*) hJetPt_ME_trg9_C_old[i]->Clone(); 
+        hJetPt_ME_scaled_trg9_C_old[i]->Scale(scalingfactor_trg9_C_old[i]);
+
+        hJetPt_ME_scaled_trg9_P_old[i] = (TH1D*) hJetPt_ME_trg9_P_old[i]->Clone(); 
+        hJetPt_ME_scaled_trg9_P_old[i]->Scale(scalingfactor_trg9_P_old[i]);
+
+        hJetPt_ME_scaled_trg7_C_old[i] = (TH1D*) hJetPt_ME_trg7_C_old[i]->Clone(); 
+        hJetPt_ME_scaled_trg7_C_old[i]->Scale(scalingfactor_trg7_C_old[i]);
+
+        hJetPt_ME_scaled_trg7_P_old[i] = (TH1D*) hJetPt_ME_trg7_P_old[i]->Clone(); 
+        hJetPt_ME_scaled_trg7_P_old[i]->Scale(scalingfactor_trg7_P_old[i]);
+
+        
+    //____ME-SE jet___________________________________________
+    
+
+    //trg9
+    //central
+
+        hJet_ME_Sub_SE_trg9_C_old[i] = (TH1D*) hJetPt_SE_trg9_C_old[i]->Clone();
+        Int_t binmax=hJetPt_SE_trg9_C_old[i]->FindLastBinAbove(0,1);
+        for(int ibin=1;ibin<=binmax;ibin++){
+            double y = hJetPt_SE_trg9_C_old[i]->GetBinContent(ibin);
+            double yref = hJetPt_ME_scaled_trg9_C_old[i]->GetBinContent(ibin);
+            if(y-yref<0)
+			    {hJet_ME_Sub_SE_trg9_C_old[i]->SetBinContent(ibin,0);
+			    continue;}
+            double binerr = hJetPt_SE_trg9_C_old[i]->GetBinError(ibin);
+            double binerref =hJetPt_ME_scaled_trg9_C_old[i]->GetBinError(ibin);
+            hJet_ME_Sub_SE_trg9_C_old[i]->SetBinContent(ibin,y-yref);
+            double err = binerr+binerref;
+            hJet_ME_Sub_SE_trg9_C_old[i]->SetBinError(ibin,err);
+
+        }
+    
+    //peripheral
+        hJet_ME_Sub_SE_trg9_P_old[i] = (TH1D*) hJetPt_SE_trg9_P_old[i]->Clone();
+        binmax=hJetPt_SE_trg9_P_old[i]->FindLastBinAbove(0,1);
+        for(int ibin=1;ibin<=binmax;ibin++){
+            double y = hJetPt_SE_trg9_P_old[i]->GetBinContent(ibin);
+            double yref = hJetPt_ME_scaled_trg9_P_old[i]->GetBinContent(ibin);
+            if(y-yref<0)
+			    {hJet_ME_Sub_SE_trg9_P_old[i]->SetBinContent(ibin,0);
+			    continue;}
+            double binerr = hJetPt_SE_trg9_P_old[i]->GetBinError(ibin);
+            double binerref =hJetPt_ME_scaled_trg9_P_old[i]->GetBinError(ibin);
+            hJet_ME_Sub_SE_trg9_P_old[i]->SetBinContent(ibin,y-yref);
+            double err = binerr+binerref;
+            hJet_ME_Sub_SE_trg9_P_old[i]->SetBinError(ibin,err);
+
+        }    
+
+    //trg7
+    //central
+
+        hJet_ME_Sub_SE_trg7_C_old[i] = (TH1D*) hJetPt_SE_trg7_C_old[i]->Clone();
+        binmax=hJetPt_SE_trg7_C_old[i]->FindLastBinAbove(0,1);
+        for(int ibin=1;ibin<=binmax;ibin++){
+            double y = hJetPt_SE_trg7_C_old[i]->GetBinContent(ibin);
+            double yref = hJetPt_ME_scaled_trg7_C_old[i]->GetBinContent(ibin);
+            if(y-yref<0)
+			    {hJet_ME_Sub_SE_trg7_C_old[i]->SetBinContent(ibin,0);
+			    continue;}
+            double binerr = hJetPt_SE_trg7_C_old[i]->GetBinError(ibin);
+            double binerref =hJetPt_ME_scaled_trg7_C_old[i]->GetBinError(ibin);
+            hJet_ME_Sub_SE_trg7_C_old[i]->SetBinContent(ibin,y-yref);
+            double err = binerr+binerref;
+            hJet_ME_Sub_SE_trg7_C_old[i]->SetBinError(ibin,err);
+
+        }
+    
+    //peripheral
+        hJet_ME_Sub_SE_trg7_P_old[i] = (TH1D*) hJetPt_SE_trg7_P_old[i]->Clone();
+        binmax=hJetPt_SE_trg7_P_old[i]->FindLastBinAbove(0,1);
+        for(int ibin=1;ibin<=binmax;ibin++){
+            double y = hJetPt_SE_trg7_P_old[i]->GetBinContent(ibin);
+            double yref = hJetPt_ME_scaled_trg7_P_old[i]->GetBinContent(ibin);
+            if(y-yref<0)
+			    {hJet_ME_Sub_SE_trg7_P_old[i]->SetBinContent(ibin,0);
+			    continue;}
+            double binerr = hJetPt_SE_trg7_P_old[i]->GetBinError(ibin);
+            double binerref =hJetPt_ME_scaled_trg7_P_old[i]->GetBinError(ibin);
+            hJet_ME_Sub_SE_trg7_P_old[i]->SetBinContent(ibin,y-yref);
+            double err = binerr+binerref;
+            hJet_ME_Sub_SE_trg7_P_old[i]->SetBinError(ibin,err);
+
+        }         
+        
+
+    }
+    //subtraction
+
+
 
 }
 
-void drawSESubME_trg9(int _form){
-    int nx = 1;
-    int ny = 1;
-    
-    double tx0=0.1, ty0=0.1;
-    float tsize = 0.05;
-    
-    sprintf(name, "SESubME_trg9_%i",_form);
-    
-    can[0] = newDivCan2( name, Lmrg,llmrg, ratx,  raty, nx, ny, 400, 400 );
-    
-    for(int iy=0; iy<ny; iy++){
-        for(int ix=0; ix<nx; ix++){
-            
-            int ipad = ix   + iy* nx;
-            
-            sprintf(name,"%s_pad_%i_%i",can[0]->GetName(),ix, iy);
-            pad[ix][iy] = (TPad*) gROOT->FindObject(name);
-            pad[ix][iy]->cd();
-            
-            gPad->SetTickx(1);
-            gPad->SetTicky(1);
-            gPad->SetLogy(1);
-            gStyle->SetOptStat(0);      //remove the entries,mean,RMS in the upper right.
-            gStyle->SetOptTitle(0);
-            
-            if(_form==0){
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C[0]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C[1]  ->Clone();
-            hhtem[2] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C[2]  ->Clone();
-            }
-            else{
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P[0]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P[1]  ->Clone();
-            hhtem[2] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P[2]  ->Clone();
 
-            }
-            
-            
-            
-            char *xtile ="p_{T,jet}^{reco,ch}( =p_{T,jet}^{raw,ch}-#rhoA ) [Gev/c]";
-            char *ytile ="(1/N_{trig})d^{2}N_{jets}/(dp_{T,jet}^{reco,ch}d#eta) (Gev/c)^{-1} ";
-            
-    hhtem[0]->SetMarkerStyle(20);
-    hhtem[0]->SetMarkerSize(0.7);
-    hhtem[0]->SetMarkerColor(kGreen+2);
-    hhtem[0]->SetLineColor(kGreen+2);
-
-    hhtem[1]->SetMarkerStyle(22);
-    hhtem[1]->SetMarkerSize(0.7);
-    hhtem[1]->SetMarkerColor(kBlue);
-    hhtem[1]->SetLineColor(kBlue);
-
-    hhtem[2]->SetMarkerStyle(25);
-    hhtem[2]->SetMarkerSize(0.7);
-    hhtem[2]->SetMarkerColor(1);
-    hhtem[2]->SetLineColor(1);
-            //hhtem[0] -> GetZaxis()->SetTitle(ztile);
-            
-            hhtem[0] -> GetXaxis()->SetTitle(xtile);
-            hhtem[0] -> GetYaxis()->SetTitle(ytile);
-            //hhtem[0] -> GetXaxis()->SetRangeUser(0,1100);
-            //hhtem[0] -> GetYaxis()->SetRangeUser(0,1);
-            hhtem[0] -> GetXaxis()->SetNdivisions(507);
-            hhtem[0] -> GetYaxis()->SetNdivisions(507);
-            
-            hhtem[0] -> GetYaxis()->SetTitleOffset(1.5);
-            
-            
-           
-            
-            
-            hhtem[0]->DrawClone("P");
-            hhtem[1]->DrawClone("Psame");
-            hhtem[2]->DrawClone("Psame");
-            
-            tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
-            tx0=0.50;ty0=0.76;
-            //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, 9<P^{trg}_{T}<30 GeV/c",tsize*0.8,1,12);
-
-	        tx0=0.50, ty0=0.69;
-	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,0-10%",tsize*0.8,1,12);
-            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,60-80%",tsize*0.8,1,12);
-
-
-            leg = mylegF(0.50,0.45,0.65,0.60,0.03);
-            leg->AddEntry(hhtem[0],"R=0.2","lp");
-
-            leg->AddEntry(hhtem[1],"R=0.3","lp");
-
-            leg->AddEntry(hhtem[2],"R=0.4","lp");
-            
-            leg->DrawClone();
-            //sprintf(name,"%s.pdf",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
-            //sprintf(name,"%s.gif",can[0]->GetName()); can[0]->SaveAs(name);
-            
-            //delete can[0];
-            
-        }//ix
-    }//iy
-
-}
 
 void drawSESubME_R_Cen(int _form){
     int nx = 1;
@@ -705,8 +898,8 @@ void drawSESubME_R_Cen(int _form){
             gStyle->SetOptTitle(0);
             
             
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg7_C[_form]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C[_form]  ->Clone();
+            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C[_form]  ->Clone();
+            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_C_old[_form]  ->Clone();
             
             
             
@@ -746,21 +939,21 @@ void drawSESubME_R_Cen(int _form){
             
             
             tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Isobar,200GeV,9<P^{trig}_{T}<30 GeV/c",tsize*0.6,1,12);
             tx0=0.50;ty0=0.76;
             //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, 0-10%",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Anti-k_{T}, 0-10%",tsize*0.6,1,12);
 
 	        tx0=0.50, ty0=0.69;
-	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.8,1,12);
-            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.8,1,12);
-            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.8,1,12);
+	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.6,1,12);
+            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.6,1,12);
+            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.6,1,12);
 
 
             leg = mylegF(0.50,0.45,0.65,0.60,0.03);
-            leg->AddEntry(hhtem[0],"7<P^{trg}_{T}<30 GeV/c","lp");
+            leg->AddEntry(hhtem[0],"w area cuts","lp");
 
-            leg->AddEntry(hhtem[1],"9<P^{trg}_{T}<30 GeV/c","lp");
+            leg->AddEntry(hhtem[1],"w/o area cuts","lp");
             
             leg->DrawClone();
             //sprintf(name,"%s.pdf",can[0]->GetName()); can[0]->SaveAs(name);
@@ -801,8 +994,8 @@ void drawSESubME_R_Per(int _form){
             gStyle->SetOptTitle(0);
             
             
-            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg7_P[_form]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P[_form]  ->Clone();
+            hhtem[0] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P[_form]  ->Clone();
+            hhtem[1] =  (TH1D*)    hJet_ME_Sub_SE_trg9_P_old[_form]  ->Clone();
             
             
             
@@ -842,21 +1035,21 @@ void drawSESubME_R_Per(int _form){
             
             
             tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Isobar,200GeV,9<P^{trig}_{T}<30 GeV/c",tsize*0.6,1,12);
             tx0=0.50;ty0=0.76;
             //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, 60-80%",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Anti-k_{T}, 60-80%",tsize*0.6,1,12);
 
 	        tx0=0.50, ty0=0.69;
-	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.8,1,12);
-            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.8,1,12);
-            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.8,1,12);
+	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.6,1,12);
+            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.6,1,12);
+            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.6,1,12);
 
 
             leg = mylegF(0.50,0.45,0.65,0.60,0.03);
-            leg->AddEntry(hhtem[0],"7<P^{trg}_{T}<30 GeV/c","lp");
+            leg->AddEntry(hhtem[0],"w area cuts","lp");
 
-            leg->AddEntry(hhtem[1],"9<P^{trg}_{T}<30 GeV/c","lp");
+            leg->AddEntry(hhtem[1],"w/o area cuts","lp");
             
             leg->DrawClone();
             //sprintf(name,"%s.pdf",can[0]->GetName()); can[0]->SaveAs(name);
@@ -870,14 +1063,14 @@ void drawSESubME_R_Per(int _form){
 
 }
 
-void drawtest(int _form){
+void drawtest(int cen, int _form){
     int nx = 1;
     int ny = 1;
     
     double tx0=0.1, ty0=0.1;
     float tsize = 0.05;
     
-    sprintf(name, "SESubME_test_%i",_form);
+    sprintf(name, "SESubME_test_cen%i_R%i", cen, _form);
     
     can[0] = newDivCan2( name, Lmrg,llmrg, ratx,  raty, nx, ny, 400, 400 );
     
@@ -896,10 +1089,19 @@ void drawtest(int _form){
             gStyle->SetOptStat(0);      //remove the entries,mean,RMS in the upper right.
             gStyle->SetOptTitle(0);
             
-            
-            hhtem[0] =  (TH1D*)    hJetPt_SE_trg7_C[_form]  ->Clone();
-            hhtem[1] =  (TH1D*)    hJetPt_ME_trg7_C[_form]  ->Clone();
-            
+            if(cen==0){
+            hhtem[0] =  (TH1D*)    hJetPt_SE_trg9_C[_form]  ->Clone();
+            hhtem[1] =  (TH1D*)    hJetPt_ME_trg9_C[_form]  ->Clone();
+            hhtem[2] =  (TH1D*)    hJetPt_SE_trg9_C_old[_form]  ->Clone();
+            hhtem[3] =  (TH1D*)    hJetPt_ME_trg9_C_old[_form]  ->Clone();
+            }
+
+            if(cen==1){
+            hhtem[0] =  (TH1D*)    hJetPt_SE_trg9_P[_form]  ->Clone();
+            hhtem[1] =  (TH1D*)    hJetPt_ME_trg9_P[_form]  ->Clone();
+            hhtem[2] =  (TH1D*)    hJetPt_SE_trg9_P_old[_form]  ->Clone();
+            hhtem[3] =  (TH1D*)    hJetPt_ME_trg9_P_old[_form]  ->Clone();
+            }
             
             
             
@@ -908,14 +1110,28 @@ void drawtest(int _form){
             char *ytile ="(1/N_{trig})d^{2}N_{jets}/(dp_{T,jet}^{reco,ch}d#eta) (Gev/c)^{-1} ";
             
     hhtem[0]->SetMarkerStyle(20);
-    hhtem[0]->SetMarkerSize(0.7);
+    hhtem[0]->SetMarkerSize(0.9);
     hhtem[0]->SetMarkerColor(kRed);
     hhtem[0]->SetLineColor(kRed);
 
-    hhtem[1]->SetMarkerStyle(25);
-    hhtem[1]->SetMarkerSize(0.7);
+    hhtem[1]->SetMarkerStyle(22);
+    hhtem[1]->SetMarkerSize(0.9);
     hhtem[1]->SetMarkerColor(kBlue+1);
     hhtem[1]->SetLineColor(kBlue+1);
+    //hhtem[1]->SetLineWidth(2);
+
+    hhtem[2]->SetMarkerStyle(25);
+    hhtem[2]->SetMarkerSize(0.9);
+    hhtem[2]->SetMarkerColor(kGreen+2);
+    hhtem[2]->SetLineColor(kGreen+2);
+
+    hhtem[3]->SetMarkerStyle(24);
+    hhtem[3]->SetMarkerSize(0.9);
+    hhtem[3]->SetMarkerColor(1);
+    hhtem[3]->SetLineColor(1);
+    //hhtem[3]->SetLineWidth(2);
+    //hhtem[3]->SetLineStyle(2);
+
 
     
             //hhtem[0] -> GetZaxis()->SetTitle(ztile);
@@ -934,22 +1150,36 @@ void drawtest(int _form){
             
             
             hhtem[0]->DrawClone("P");
-            hhtem[1]->DrawClone("Psame");
+            hhtem[1]->DrawClone("P same");
+            hhtem[2]->DrawClone("P same");
+            hhtem[3]->DrawClone("P same");
             
             
             tx0=0.50, ty0=0.84;
-            myTextF(tx0,ty0,"Isobar,200GeV",tsize*0.8,1,12);
+            myTextF(tx0,ty0,"Isobar,200GeV,9<P^{trig}_{T}<30 GeV/c",tsize*0.6,1,12);
             tx0=0.50;ty0=0.76;
             //sprintf(name,"centrality 0-20%");
-            myTextF(tx0,ty0,"Anti-k_{T}, 60-80%",tsize*0.8,1,12);
+            if(cen==0) myTextF(tx0,ty0,"Anti-k_{T}, 0-10%",tsize*0.6,1,12);
+            if(cen==1) myTextF(tx0,ty0,"Anti-k_{T}, 60-80%",tsize*0.6,1,12);
 
 	        tx0=0.50, ty0=0.69;
-	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.8,1,12);
-            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.8,1,12);
-            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.8,1,12);
+	        if(_form==0) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.2",tsize*0.6,1,12);
+            if(_form==1) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.3",tsize*0.6,1,12);
+            if(_form==2) myTextF(tx0,ty0,"h^{#pm}+jet,R=0.4",tsize*0.6,1,12);
 
 
             leg = mylegF(0.50,0.45,0.65,0.60,0.03);
+            leg->AddEntry("NULL","w/o ","");
+
+            leg->AddEntry(hhtem[2],"SE","lp");
+
+            leg->AddEntry(hhtem[3],"ME","lp");
+            
+            leg->DrawClone();
+
+            leg = mylegF(0.65,0.45,0.80,0.60,0.03);
+            leg->AddEntry("NULL","w area cuts","");
+
             leg->AddEntry(hhtem[0],"SE","lp");
 
             leg->AddEntry(hhtem[1],"ME","lp");
@@ -966,23 +1196,23 @@ void drawtest(int _form){
 
 }
 
- void drawJetSub_com(){
+ void drawResults_com(){
     
     readin();
-    //0 central 1 peripheral
-/*    for(int i=0;i<2;i++){
+    readin_old();
     
-    drawSESubME_trg7(i);
-    drawSESubME_trg9(i);
-    
-    }
-    */
     //0-0.2 1-0.3 2-0.4
     for(int j=0;j<3;j++){
         drawSESubME_R_Cen(j);
         drawSESubME_R_Per(j);
-        //drawtest(j);
+        
     }
-   
+   for(int i=0;i<2;i++){
+       for(int j=0;j<3;j++){
+            //drawtest(i,j);
+        }
+    }
+
+
 }
    
