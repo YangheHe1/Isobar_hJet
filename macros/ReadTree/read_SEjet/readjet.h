@@ -53,7 +53,7 @@ static const double value_pi = 3.14;
 class readjet {
 public :
 
-   readjet(string filelist, int fr, int tr, int njob);
+   readjet(string filelist, int fr, int tr, int njob, double area_cut);
    void InitHist();
    void JetLoop();
    int centrality( int _refMult );
@@ -61,6 +61,7 @@ public :
    int from;
    int to;
    int Njob;
+   double AreaCut;
    char name[200];
    TFile *fout;
    int centid;
@@ -68,12 +69,34 @@ public :
    //double TriggerPhi;
    TH1D *CjetPt[2];
    TH1D *CjetPt_9_30[2];
+   TH1D *CjetPt_3_7[2];
+   TH1D *CjetPt_7_9[2];
    TH1D *Ntrigger[2];
    TH1D *Ntrigger9_30[2];
+   TH1D *Ntrigger3_7[2];
+   TH1D *Ntrigger7_9[2];
    TH1D *triggerPt[2];
    TH1D *Hrho[2];
+
+   TH1D *HArea[2];
+   TH1D *HArea9_30[2];
+   TH2D *HArea_Pt[2];
+   TH2D *HArea_Pt9_30[2];
+   
+   TH1D *HArea_JPt5[2];
+   TH1D *HArea9_30_JPt5[2];
+   TH2D *HArea_Pt_JPt5[2];
+   TH2D *HArea_Pt9_30_JPt5[2];
+
    TH2D *Hrho_vs_M[2];
-   TH1D *Harea;
+   TH1D *Harea7_30;
+   TH1D *Harea9_30;
+   TH2D *Harea_Pt;
+   TH2D *Harea_Pt9_30;
+   TH1D *Harea7_30_Pt5;
+   TH1D *Harea9_30_Pt5;
+   TH1D *HTrg7_30;
+   TH1D *HTrg9_30;
    TH1D *Hrho_all;
    TH1D *Hrho7_10;
    TH1D *Hrho10_20;

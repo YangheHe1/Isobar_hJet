@@ -53,7 +53,7 @@ static const double value_pi = 3.14;
 class readjet {
 public :
 
-   readjet(string filelist, int fr, int tr, int njob);
+   readjet(string filelist, int fr, int tr, int njob, double area_cut);
    int  centrality( int _refMult );
    void InitHist();
    void JetLoop();
@@ -61,6 +61,8 @@ public :
    int from;
    int to;
    int Njob;
+   double AreaCut;
+
    char name[200];
    TFile *fout;
    TRandom phi11; 
@@ -71,7 +73,14 @@ public :
    TH1D *Hrho[2];
    TH2D *Hrho_vs_M[2];
    TH1D *Harea;
+   TH1D *Harea_Pt5;
+   TH1D *HNevt;
    TH1D *Hrho_all;
+
+   TH1D *HArea[2];
+   TH2D *HArea_Pt[2];
+   TH1D *HArea_JPt5[2];
+   TH2D *HArea_Pt_JPt5[2];
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain

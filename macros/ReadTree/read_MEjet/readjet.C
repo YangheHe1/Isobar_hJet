@@ -4,7 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-readjet::readjet(string filelist, int fr, int tr, int njob):from(fr),to(tr),Njob(njob){
+readjet::readjet(string filelist, int fr, int tr, int njob, double area_cut):from(fr),to(tr),Njob(njob),AreaCut(area_cut){
 
     TChain* chain  = new TChain("JetTree","");
 
@@ -74,10 +74,24 @@ Hrho[icent] = new TH1D(name,"rho",100,0,50);
 sprintf(name,"Rho_vs_M_cent%d",icent);
 Hrho_vs_M[icent] = new TH2D(name,"",820,0,820,100,0,50);
 
+sprintf(name,"Area_cent%d",icent);
+HArea[icent] = new TH1D(name,"Area",150,0,1.5);
+
+sprintf(name,"Area_vs_Pt_cent%d",icent);
+HArea_Pt[icent] = new TH2D(name,"Area vs pt",150,0,1.5,70,-20,50);
+
+sprintf(name,"Area_JPt5_cent%d",icent);
+HArea_JPt5[icent] = new TH1D(name,"Area jet pt>5",150,0,1.5);
+
+sprintf(name,"Area_vs_Pt_JPt5_cent%d",icent);
+HArea_Pt_JPt5[icent] = new TH2D(name,"Area vs pt jet pt>5",150,0,1.5,70,-20,50);
+
 }
 
 Hrho_all = new TH1D("Hrho_all","Hrho_all",100,0,50);
-Harea = new TH1D("Harea","Harea",20,0,0.5);
+Harea = new TH1D("Harea","Harea",100,0,1);
+Harea_Pt5 = new TH1D("Harea_Pt5","Harea jet pt>5",100,0,1);
+HNevt = new TH1D("HNevt","HNevt",2,0,2);
 
 }
 
@@ -97,15 +111,34 @@ void readjet::JetLoop(){
 
                 if (trig_jet_deltaPhi < value_pi-(value_pi/4.0)  || trig_jet_deltaPhi > value_pi+(value_pi/4.0) ) continue;
 
+                if(iJetArea<AreaCut) continue;
+                
                 double iJetPtC = iJetPt-(iJetArea*Rho);
                 Harea->Fill(iJetArea);
+                if(iJetPtC>5) Harea_Pt5->Fill(iJetArea);
       
 		   if(centid==0){
 			   CjetPt[0]->Fill(iJetPtC);
+               HArea[0]->Fill(iJetArea);
+               HArea_Pt[0]->Fill(iJetArea,iJetPtC);
+
+               if(iJetPtC>5) {
+               HArea_JPt5[0]->Fill(iJetArea);
+               HArea_Pt_JPt5[0]->Fill(iJetArea,iJetPtC);
+                }
+
 			}
 
 		   if(centid==6||centid==7){
 			   CjetPt[1]->Fill(iJetPtC);
+               HArea[1]->Fill(iJetArea);
+               HArea_Pt[1]->Fill(iJetArea,iJetPtC);
+
+               if(iJetPtC>5) {
+               HArea_JPt5[1]->Fill(iJetArea);
+               HArea_Pt_JPt5[1]->Fill(iJetArea,iJetPtC);
+                }
+
 			}
       
 
@@ -167,7 +200,7 @@ void readjet::Loop()
 		}
 	
 	   Hrho_all->Fill(Rho);
-
+        HNevt->Fill(1);
       //TRandom phi;
       TriggerPhi = phi11.Uniform(-3.14,3.14);
       JetLoop();
